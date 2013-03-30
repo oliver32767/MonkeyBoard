@@ -1,0 +1,11 @@
+# eclipse meta
+.project
+.settings
+
+# OS X junk
+.DS_Store
+
+# java artifacts
+bin/
+*.jar
+*.class
