@@ -1,6 +1,8 @@
 # eclipse meta
 .project
 .settings
+eclipse-build.xml
+jar-in-jar-loader.zip
 
 # OS X junk
 .DS_Store
