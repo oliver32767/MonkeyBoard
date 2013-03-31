@@ -1,7 +1,7 @@
 <!---
 /*******************************************************************************
  * This file is part of MonkeyBoard
- * Copyright Â© 2013 Oliver Bartley
+ * Copyright © 2013 Oliver Bartley
  * 
  * MonkeyBoard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,11 @@
 -->
 
 # Building the Project
+
 ## Requirements
 
-Apart from the Libraries managed by ivy, you need to have the following jars to your build path. They can be found in `$ANDROID_SDK/tools/lib` (tools rev. 21.0.1).
+Apart from the Libraries managed by ivy, you need to have the following jars to your build path. 
+They can be found in `$ANDROID_SDK/tools/lib` (tools rev. 21.0.1).
 
 * chimpchat.jar
 * common.jar
