@@ -36,7 +36,7 @@ import net.brtly.monkeyboard.api.PluginDockable;
 import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.gui.panel.ConsolePanel;
 import net.brtly.monkeyboard.gui.panel.DeviceList;
-import net.brtly.monkeyboard.gui.panel.DeviceProperties;
+import net.brtly.monkeyboard.gui.panel.PropertyList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,7 +115,7 @@ public class MasterControlPanel extends JFrame {
 
 	private void createDefaultLayout() {
 		addPanel(DeviceList.class);
-		addPanel(DeviceProperties.class, SplitDockProperty.EAST);
+		addPanel(PropertyList.class, SplitDockProperty.EAST);
 		addPanel(ConsolePanel.class, SplitDockProperty.SOUTH);
 	}
 	
