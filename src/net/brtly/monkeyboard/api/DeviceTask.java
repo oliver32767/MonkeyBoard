@@ -17,6 +17,7 @@
  ******************************************************************************/
 package net.brtly.monkeyboard.api;
 
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -55,6 +56,8 @@ public abstract class DeviceTask<Progress, Result> {
 		PENDING, RUNNING, CANCELLED, FAILED, FINISHED
 	}
 
+	private UUID _uuid = UUID.randomUUID();
+	
 	private Executor _callbackExecutor;
 
 	private ExecutorService _workerExecutor;
@@ -62,6 +65,14 @@ public abstract class DeviceTask<Progress, Result> {
 	private Future<Result> _future;
 	private volatile Status _status = Status.PENDING;
 
+	/**
+	 * Get a UUID that uniquely identifies this task
+	 * @return
+	 */
+	public UUID getUUID() {
+		return _uuid;
+	}
+	
 	/**
 	 * Execute this task with the given Executors
 	 * 
@@ -120,7 +131,6 @@ public abstract class DeviceTask<Progress, Result> {
 			public Result call() throws Exception {
 				return doInBackground(device);
 			}
-
 		});
 
 		// Now add a monitor task to the worker thread
@@ -149,16 +159,13 @@ public abstract class DeviceTask<Progress, Result> {
 					}
 					notifyFinished(result);
 				} catch (InterruptedException e) {
-					// This gets caught when we cancel() the task
-					cancel();
-					Thread.currentThread().interrupt();// preserve the message
-					return;// Stop doing whatever I am doing and terminate
+					notifyFailed(e);
+				} catch (TimeoutException e) {
+					notifyFailed(e);
 				} catch (ExecutionException e) {
 					notifyFailed((Exception) e.getCause());
-				} catch (TimeoutException e) {
-					cancel();
 				}
-
+				return;
 			}
 
 		});
@@ -176,6 +183,7 @@ public abstract class DeviceTask<Progress, Result> {
 		}
 		boolean rv = _future.cancel(true);
 		if (rv) {
+			notifyFailed(new InterruptedException("Task cancelled"));
 			_status = Status.CANCELLED;
 		}
 		return (rv);
