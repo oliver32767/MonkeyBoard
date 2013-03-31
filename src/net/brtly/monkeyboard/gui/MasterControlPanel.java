@@ -20,28 +20,20 @@ package net.brtly.monkeyboard.gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 import net.brtly.monkeyboard.adb.DeviceManager;
-import net.brtly.monkeyboard.api.IDeviceManager.DeviceManagerState;
 import net.brtly.monkeyboard.api.IEventBus;
+import net.brtly.monkeyboard.api.PluginDockable;
 import net.brtly.monkeyboard.api.PluginPanel;
-import net.brtly.monkeyboard.api.event.DeviceManagerStateChangedEvent;
 import net.brtly.monkeyboard.gui.panel.ConsolePanel;
 import net.brtly.monkeyboard.gui.panel.DeviceList;
 import net.brtly.monkeyboard.gui.panel.DeviceProperties;
@@ -51,12 +43,9 @@ import org.apache.commons.logging.LogFactory;
 
 import bibliothek.gui.DockController;
 import bibliothek.gui.DockFrontend;
-import bibliothek.gui.dock.DefaultDockable;
 import bibliothek.gui.dock.SplitDockStation;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.station.split.SplitDockProperty;
-
-import com.google.common.eventbus.Subscribe;
 
 public class MasterControlPanel extends JFrame {
 	private static final long serialVersionUID = -9025534330767761624L;
@@ -64,6 +53,7 @@ public class MasterControlPanel extends JFrame {
 	private List<Runnable> _runOnClose = new ArrayList<Runnable>();
 
 	private DockController _controller;
+	private SplitDockStation _station;
 	private IEventBus _eventBus;
 
 	JButton btnAdb;
@@ -78,28 +68,11 @@ public class MasterControlPanel extends JFrame {
 		_controller = new DockController();
 		_controller.setRootWindow(this);
 
+		_station = new SplitDockStation();
+		_controller.add(_station);
+		getContentPane().add(_station);
+		
 		destroyOnClose(_controller);
-
-//		JToolBar toolBar = new JToolBar();
-//		getContentPane().add(toolBar, BorderLayout.NORTH);
-//
-//		btnAdb = new JButton("adb");
-//		btnAdb.setIcon(new ImageIcon(MasterControlPanel.class
-//				.getResource("/img/start.png")));
-//		btnAdb.setHorizontalTextPosition(SwingConstants.LEADING);
-//		btnAdb.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseClicked(MouseEvent arg0) {
-//				if (DeviceManager.getDeviceManager().getState() == DeviceManagerState.STOPPED ||
-//						DeviceManager.getDeviceManager().getState() == DeviceManagerState.FAILED) {
-//					DeviceManager
-//							.start("/Users/obartley/Library/android-sdk-macosx/platform-tools/adb");
-//				} else {
-//					DeviceManager.stop();
-//				}
-//			}
-//		});
-//		toolBar.add(btnAdb);
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -141,25 +114,29 @@ public class MasterControlPanel extends JFrame {
 	}
 
 	private void createDefaultLayout() {
-		SplitDockStation station = new SplitDockStation();
-		station.drop(loadPlugin(new DeviceList(new PluginContext(DeviceManager
-				.getDeviceManager(), _eventBus))));
-		station.drop(loadPlugin(new DeviceProperties(new PluginContext(
-				DeviceManager.getDeviceManager(), _eventBus))),
-				SplitDockProperty.EAST);
-		station.drop(loadPlugin(new ConsolePanel(new PluginContext(
-				DeviceManager.getDeviceManager(), _eventBus))),
-				SplitDockProperty.SOUTH);
-		_controller.add(station);
-		getContentPane().add(station);
+		addPanel(DeviceList.class);
+		addPanel(DeviceProperties.class, SplitDockProperty.EAST);
+		addPanel(ConsolePanel.class, SplitDockProperty.SOUTH);
 	}
-
-	private DefaultDockable loadPlugin(PluginPanel plugin) {
-		DefaultDockable rv = new DefaultDockable();
-		rv.setTitleText(plugin.getTitle());
-		rv.setTitleIcon(plugin.getIcon());
-		rv.add(plugin);
-		return rv;
+	
+	private void addPanel(Class<? extends PluginPanel> c) {
+		addPanel(c, null);
+	}
+	private void addPanel(Class<? extends PluginPanel> c, SplitDockProperty property) {
+		PluginDockable dockable = new PluginDockable();
+		PluginPanel panel;
+		try {
+			panel = c.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			return;
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return;
+		}
+		panel.attach(dockable, DeviceManager.getDeviceManager(), _eventBus);
+		dockable.add(panel);
+		_station.drop(dockable, property);
 	}
 
 	private static String createAndShowSdkChooser() {

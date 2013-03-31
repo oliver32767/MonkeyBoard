@@ -31,7 +31,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
-import net.brtly.monkeyboard.api.IPluginContext;
 import net.brtly.monkeyboard.api.Plugin;
 import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.api.event.DeviceEvent;
@@ -39,11 +38,6 @@ import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import bibliothek.gui.dock.action.DefaultDockActionSource;
-import bibliothek.gui.dock.action.LocationHint;
-import bibliothek.gui.dock.action.actions.SelectableDockActionGroup;
-import bibliothek.gui.dock.action.actions.SimpleSelectableAction;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -89,8 +83,8 @@ public class DeviceProperties extends PluginPanel {
 
 	private String _currentDevice;
 
-	public DeviceProperties(IPluginContext runtime) {
-		super(runtime);
+	@Override
+	public void onCreate() {
 		setLayout(new MigLayout("inset 5", "[grow]", "[grow]"));
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -108,7 +102,7 @@ public class DeviceProperties extends PluginPanel {
 		_tree.setRootVisible(false);
 		scrollPane.setViewportView(_tree);
 		
-		getRuntime().getEventBus().register(this);
+		getEventBus().register(this);
 	}
 
 	@Subscribe
@@ -149,7 +143,7 @@ public class DeviceProperties extends PluginPanel {
 				}
 
 			};
-			getRuntime().getDeviceManager().submitTask(_currentDevice, task);
+			getDeviceManager().submitTask(_currentDevice, task);
 		} else {
 			updateTree(new HashMap<String, String>());
 		}

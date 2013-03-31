@@ -21,6 +21,9 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Subclasses of PluginPanel annotated with
  * {@link net.brtly.monkeyboard.api.Plugin} will be available to users in the
@@ -31,13 +34,27 @@ import javax.swing.JPanel;
  */
 public class PluginPanel extends JPanel {
 
-	private IPluginContext _runtime;
+	private static final Log LOG = LogFactory.getLog(PluginPanel.class);
+	private PluginDockable _dockable;
+	private IDeviceManager _deviceManager;
+	private IEventBus _eventBus;
 
 	private String _title = null;
 	private Icon _icon = null;
 	private boolean _allowDuplicates = true;
 
-	public PluginPanel(IPluginContext runtime) {
+	/**
+	 * Create an instance of a PluginPanel. There should be no need to provide a
+	 * subclass of PluginPanel with a constructor, as {@link #onCreate()} is
+	 * called implicitly. You should really do your initialization there.
+	 * 
+	 * @param context
+	 *            the context object that allows a plugin to access runtime
+	 *            objects
+	 * @param dockable
+	 *            the dockable frame that this PluginPanel is hosted in
+	 */
+	public PluginPanel() {
 		Plugin anno = getClass().getAnnotation(Plugin.class);
 		if (anno != null) {
 			_title = anno.title();
@@ -48,32 +65,119 @@ public class PluginPanel extends JPanel {
 			}
 			_allowDuplicates = anno.allowDuplicates();
 		}
-		_runtime = runtime;
 	}
 
-	public final IPluginContext getRuntime() {
-		return _runtime;
-	}
-
+	/**
+	 * Get the dockable's current title. The default title is set with the @Plugin
+	 * annotation.
+	 * 
+	 * @return
+	 */
 	public final String getTitle() {
 		return _title;
 	}
 
+	/**
+	 * Set the dockable's title.
+	 * 
+	 * @param title
+	 */
 	public final void setTitle(String title) {
 		// TODO: find a way to update the dockable's title when this is invoked
 		_title = title;
 	}
-	
+
+	/**
+	 * Get the dockable's current icon. The default icon is set with the @Plugin
+	 * annotation.
+	 * 
+	 * @return
+	 */
 	public final Icon getIcon() {
 		return _icon;
 	}
-	
+
+	/**
+	 * Set the dockable's icon.
+	 * 
+	 * @param icon
+	 */
 	public final void setIcon(Icon icon) {
 		// TODO: find a way to update the dockable's icon when this is invoked
 		_icon = icon;
 	}
-	
+
+	/**
+	 * Ask whether this plugin allows duplicate instances or not
+	 * 
+	 * @return
+	 */
 	public final boolean allowDuplicates() {
 		return _allowDuplicates;
+	}
+
+	/**
+	 * Return a PluginDockable object, which allows plugins to customize their
+	 * dockable "window" and listen to user events.
+	 * 
+	 * @return
+	 */
+	public final PluginDockable getDockable() {
+		return _dockable;
+	}
+
+	/**
+	 * Return a DeviceManager object, which allows plugins to obtain information
+	 * about connected devices and submit DeviceTasks.
+	 * 
+	 * @return
+	 */
+	public final IDeviceManager getDeviceManager() {
+		return _deviceManager;
+	}
+
+	/**
+	 * Return an EventBus object, which allows plugins to subscribe to posted
+	 * events
+	 * 
+	 * @return
+	 */
+	public final IEventBus getEventBus() {
+		return _eventBus;
+	}
+
+	// LIFECYCLE METHODS ///////////////////////////////////////////////////////
+
+	/**
+	 * Attach this activity to a dockable and provide interfaces to runtime
+	 * objects
+	 * 
+	 * @param dockable the PluginDockable that this plugin is hosted in
+	 * @param deviceManager an interface to the global DeviceManager
+	 * @param eventBus as interface to the global EventBus
+	 */
+	public final void attach(PluginDockable dockable,
+			IDeviceManager deviceManager, IEventBus eventBus) {
+		_dockable = dockable;
+		_deviceManager = deviceManager;
+		_eventBus = eventBus;
+
+		onCreate();
+	}
+
+	/**
+	 * Override this method to perform initialization tasks, instead of in a
+	 * constructor.
+	 */
+	public void onCreate() {
+
+	}
+
+	/**
+	 * Override this method to perform finalization tasks before the Plugin is
+	 * destroyed.
+	 */
+	public void onDestroy() {
+
 	}
 }

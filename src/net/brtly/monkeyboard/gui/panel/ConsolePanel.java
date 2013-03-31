@@ -24,13 +24,14 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 
-import net.brtly.monkeyboard.api.IPluginContext;
 import net.brtly.monkeyboard.api.Plugin;
 import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.gui.JLogTable;
@@ -42,8 +43,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
-import javax.swing.ImageIcon;
-import javax.swing.DefaultComboBoxModel;
 
 @Plugin(title = "Console Log", icon = "res/img/console.png")
 public class ConsolePanel extends PluginPanel {
@@ -66,10 +65,9 @@ public class ConsolePanel extends PluginPanel {
 	private JScrollPane scrollPane;
 	private JLogTable _table;
 	private JLogTableAppender _appender;
-
-	public ConsolePanel(IPluginContext runtime) {
-		super(runtime);
-
+	
+	@Override
+	public void onCreate() {
 		setLayout(new MigLayout("inset 5",
 				"[grow][:100:100][24:n:24][24:n:24]", "[::24][grow]"));
 
@@ -136,7 +134,7 @@ public class ConsolePanel extends PluginPanel {
 
 		_appender = new JLogTableAppender();
 		_appender.setThreshold(Level.ALL);
-		Logger.getRootLogger().addAppender(_appender);
+		Logger.getRootLogger().addAppender(_appender);		
 	}
 
 	private void logPangrams() {
