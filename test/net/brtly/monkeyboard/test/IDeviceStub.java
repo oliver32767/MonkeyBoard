@@ -1,4 +1,4 @@
-package net.brtly.act.test;
+package net.brtly.monkeyboard.test;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -38,7 +38,6 @@ public class IDeviceStub implements IDeviceController {
 	
 	@Override
 	public String getSerialNumber() {
-		// TODO Auto-generated method stub
 		return _serial;
 	}
 
