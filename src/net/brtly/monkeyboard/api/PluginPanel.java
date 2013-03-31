@@ -83,8 +83,10 @@ public class PluginPanel extends JPanel {
 	 * @param title
 	 */
 	public final void setTitle(String title) {
-		// TODO: find a way to update the dockable's title when this is invoked
 		_title = title;
+		if (_dockable != null) {
+			_dockable.setTitleText(_title);			
+		}
 	}
 
 	/**
@@ -103,8 +105,10 @@ public class PluginPanel extends JPanel {
 	 * @param icon
 	 */
 	public final void setIcon(Icon icon) {
-		// TODO: find a way to update the dockable's icon when this is invoked
 		_icon = icon;
+		if (_dockable != null) {
+			_dockable.setTitleIcon(_icon);
+		}
 	}
 
 	/**
@@ -158,7 +162,11 @@ public class PluginPanel extends JPanel {
 	 */
 	public final void attach(PluginDockable dockable,
 			IDeviceManager deviceManager, IEventBus eventBus) {
+		
 		_dockable = dockable;
+		setTitle(_title);
+		setIcon(_icon);
+		
 		_deviceManager = deviceManager;
 		_eventBus = eventBus;
 
