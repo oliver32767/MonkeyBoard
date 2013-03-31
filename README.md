@@ -22,7 +22,7 @@
 
 ## Requirements
 
-Apart from the Libraries managed by ivy, you need to have the following jars to your build path. 
+Apart from the Libraries managed by ivy, you need to have the following jars on your build path. 
 They can be found in `$ANDROID_SDK/tools/lib` (tools rev. 21.0.1).
 
 * chimpchat.jar
