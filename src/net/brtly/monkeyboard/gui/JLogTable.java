@@ -35,11 +35,9 @@ import javax.swing.text.StyleConstants;
 
 /**
  * JTable subclass that simplifies writing log entries to a table
- * Will probably be replaced by GlazedTables before too much longer
  * @author obartley
  *
  */
-@Deprecated
 public class JLogTable extends JTable {
 
 	public static interface LogTableStyleProvider {
