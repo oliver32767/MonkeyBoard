@@ -163,7 +163,6 @@ public class DeviceTaskTest extends TestCase {
 		startSignal.await(1000, TimeUnit.MILLISECONDS);
 		task.cancel();
 		_endSignal.await(500, TimeUnit.MILLISECONDS);
-		
 		assertTrue(_error instanceof InterruptedException);
 	}
 	
