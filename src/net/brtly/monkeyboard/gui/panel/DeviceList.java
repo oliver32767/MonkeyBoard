@@ -240,7 +240,6 @@ public class DeviceList extends PluginPanel {
 				int row = _table.getSelectedRow();
 				if (row != -1) {
 					String serial = _model.getSerialNumberForRow(row);
-					LOG.debug("Device selected: " + serial + " @ " + row);
 					DeviceManager.getDeviceManager().setFocusedDevice(serial);
 				}
 			}

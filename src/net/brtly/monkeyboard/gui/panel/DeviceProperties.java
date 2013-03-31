@@ -109,8 +109,8 @@ public class DeviceProperties extends PluginPanel {
 	public void onDeviceEvent(DeviceEvent event) {
 		switch (event.getEventType()) {
 		case DEVICE_FOCUSED:
-			LOG.debug("Switched focus:" + event.getSerialNumber());
 			_currentDevice = event.getSerialNumber();
+			setTitle("Device Properties [" + event.getSerialNumber() + "]");
 			reloadProperties();
 			break;
 		case DEVICE_BUILD_INFO_CHANGED:
