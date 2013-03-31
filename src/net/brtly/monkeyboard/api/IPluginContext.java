@@ -17,9 +17,34 @@
  ******************************************************************************/
 package net.brtly.monkeyboard.api;
 
+/**
+ * Objects implementing IPluginContext provide access to runtime objects,
+ * typically to a Plugin instance.
+ * 
+ * @author obartley
+ * 
+ */
 public interface IPluginContext {
 
+	/**
+	 * Access the DeviceManager
+	 * 
+	 * @return
+	 */
 	public IDeviceManager getDeviceManager();
+
+	/**
+	 * Access the EventBus in order to post and subscribe to events
+	 * 
+	 * @return
+	 */
 	public IEventBus getEventBus();
-	
+
+	/**
+	 * Get the current plugins Dockable frame.
+	 * 
+	 * @return
+	 */
+	public PluginDockable getDockable();
+
 }
