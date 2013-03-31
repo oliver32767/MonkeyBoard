@@ -34,11 +34,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * optional callbacks and a timeout.
  * 
  * To use, create an instance and Override
- * {@link #doInBackground(IDeviceController)}. This method will be executed on a
+ * {@link #run(IDeviceController)}. This method will be executed on a
  * background thread once execute has been called.
  * 
  * To get callbacks and error notifications, Override
- * {@link #onProgressUpdate(Object)}, {@link #onPostExecute(Object)} and
+ * {@link #onProgressUpdate(Object)}, {@link #onSuccess(Object)} and
  * {@link #onFailure(Exception)}.
  * 
  * 
@@ -47,7 +47,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * @param <Progress>
  *            the type of Object passed to {@link #onProgressUpdate(Object)}.
  * @param <Result>
- *            the type of Object passed to {@link #onPostExecute(Object)} and
+ *            the type of Object passed to {@link #onSuccess(Object)} and
  *            represents the finished result of the Task.
  */
 public abstract class DeviceTask<Progress, Result> {
@@ -77,7 +77,7 @@ public abstract class DeviceTask<Progress, Result> {
 	 * Execute this task with the given Executors
 	 * 
 	 * @param backgroundExecutor
-	 *            the executor to which {@link #doInBackground(IDeviceController)}
+	 *            the executor to which {@link #run(IDeviceController)}
 	 *            will be added as a Runnable
 	 * @param callbackExecutor
 	 *            the executor to which callback methods will be added as
@@ -95,7 +95,7 @@ public abstract class DeviceTask<Progress, Result> {
 	 * Execute this task with the given Executors with an optional timeout.
 	 * 
 	 * @param backgroundExecutor
-	 *            the executor to which {@link #doInBackground(IDeviceController)}
+	 *            the executor to which {@link #run(IDeviceController)}
 	 *            will be added as a Runnable
 	 * @param callbackExecutor
 	 *            the executor to which callback methods will be added as
@@ -129,7 +129,7 @@ public abstract class DeviceTask<Progress, Result> {
 		_future = backgroundExecutor.submit(new Callable<Result>() {
 			@Override
 			public Result call() throws Exception {
-				return doInBackground(device);
+				return run(device);
 			}
 		});
 
@@ -199,7 +199,7 @@ public abstract class DeviceTask<Progress, Result> {
 	}
 
 	/**
-	 * Called from {@link #doInBackground(IDeviceController)} in order to send
+	 * Called from {@link #run(IDeviceController)} in order to send
 	 * progress updates on the Callback thread
 	 * 
 	 * @param progress
@@ -223,22 +223,22 @@ public abstract class DeviceTask<Progress, Result> {
 	 * @return the Result of the task
 	 * @throws Exception
 	 */
-	protected abstract Result doInBackground(IDeviceController device)
+	public abstract Result run(IDeviceController device)
 			throws Exception;
 
 	/**
 	 * Override this method if you want to receive progress updates from the
 	 * background thread. This method is run on the Callback thread when
 	 * {@link #updateProgress()} is invoked from
-	 * {@link #doInBackground(IDeviceController)}
+	 * {@link #run(IDeviceController)}
 	 * 
 	 * @param progress
 	 */
-	protected void onProgressUpdate(Progress progress) {
+	public void onProgressUpdate(Progress progress) {
 	}
 
 	/**
-	 * Takes care of wrapping {@link #onPostExecute(Object)} in a Runnable and
+	 * Takes care of wrapping {@link #onSuccess(Object)} in a Runnable and
 	 * submiting it to the callback service
 	 * 
 	 * @param result
@@ -249,7 +249,7 @@ public abstract class DeviceTask<Progress, Result> {
 		_callbackExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				onPostExecute(result);
+				onSuccess(result);
 			}
 		});
 		_workerExecutor.shutdownNow();
@@ -257,13 +257,13 @@ public abstract class DeviceTask<Progress, Result> {
 
 	/**
 	 * Override this method if you want to receive a result from
-	 * {@link #doInBackground(IDeviceController)} This method is automatically
-	 * called on the callback thread when {@link #doInBackground(IDeviceController)}
+	 * {@link #run(IDeviceController)} This method is automatically
+	 * called on the callback thread when {@link #run(IDeviceController)}
 	 * completes.
 	 * 
 	 * @param result
 	 */
-	protected void onPostExecute(Result result) {
+	public void onSuccess(Result result) {
 	}
 
 	/**
@@ -286,11 +286,11 @@ public abstract class DeviceTask<Progress, Result> {
 	/**
 	 * Override this method if you want to receive notification that the task
 	 * failed. This method is automatically called on the callback thread when
-	 * {@link #doInBackground(IDeviceController)} throws an Exception
+	 * {@link #run(IDeviceController)} throws an Exception
 	 * 
 	 * @param err
-	 *            the exception thrown in {@link #doInBackground(IDeviceController)}
+	 *            the exception thrown in {@link #run(IDeviceController)}
 	 */
-	protected void onFailure(Exception err) {
+	public void onFailure(Exception err) {
 	}
 }
