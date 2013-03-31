@@ -52,7 +52,7 @@ public class DeviceTaskTest extends TestCase {
 		DeviceTask<Integer, Boolean> task = new DeviceTask<Integer, Boolean>() {
 
 			@Override
-			public Boolean doInBackground(IDeviceController device)
+			public Boolean run(IDeviceController device)
 					throws Exception {
 				updateProgress(100);
 				return true;
@@ -64,7 +64,7 @@ public class DeviceTaskTest extends TestCase {
 			}
 
 			@Override
-			public void onPostExecute(Boolean result) {
+			public void onSuccess(Boolean result) {
 				_finalResult = result;
 				_endSignal.countDown();
 			}
@@ -84,7 +84,7 @@ public class DeviceTaskTest extends TestCase {
 		DeviceTask<Integer, Boolean> task = new DeviceTask<Integer, Boolean>() {
 
 			@Override
-			public Boolean doInBackground(IDeviceController device)
+			public Boolean run(IDeviceController device)
 					throws Exception {
 				throw new SocketException();
 			}
@@ -110,7 +110,7 @@ public class DeviceTaskTest extends TestCase {
 		DeviceTask<Integer, Boolean> task = new DeviceTask<Integer, Boolean>() {
 
 			@Override
-			public Boolean doInBackground(IDeviceController device)
+			public Boolean run(IDeviceController device)
 					throws Exception {
 				// infinite loop
 				while (true) {
@@ -141,7 +141,7 @@ public class DeviceTaskTest extends TestCase {
 		DeviceTask<Integer, Boolean> task = new DeviceTask<Integer, Boolean>() {
 
 			@Override
-			public Boolean doInBackground(IDeviceController device)
+			public Boolean run(IDeviceController device)
 					throws Exception {
 				// infinite loop
 				while (true) {
