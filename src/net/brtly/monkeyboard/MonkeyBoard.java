@@ -1,23 +1,25 @@
 /*******************************************************************************
- * This file is part of AndroidCommandTool.
+ * This file is part of MonkeyBoard
  * Copyright © 2013 Oliver Bartley
  * 
- * AndroidCommandTool is free software: you can redistribute it and/or modify
+ * MonkeyBoard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * Foobar is distributed in the hope that it will be useful,
+ * MonkeyBoard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package net.brtly.monkeyboard;
 
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import net.brtly.monkeyboard.gui.MasterControlPanel;
 
@@ -60,6 +62,25 @@ public class MonkeyBoard {
 	}
 
 	private static void createAndShowGui() {
+		
+		try {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "MonkeyBoard");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
