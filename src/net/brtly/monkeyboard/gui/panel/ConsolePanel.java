@@ -46,6 +46,8 @@ import org.apache.log4j.spi.LoggingEvent;
 
 @Plugin(title = "Console Log", icon = "res/img/console.png")
 public class ConsolePanel extends PluginPanel {
+	public ConsolePanel() {
+	}
 
 	private class JLogTableAppender extends WriterAppender {
 		@Override

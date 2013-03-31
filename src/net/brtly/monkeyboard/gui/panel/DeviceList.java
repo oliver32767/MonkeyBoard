@@ -100,7 +100,7 @@ public class DeviceList extends PluginPanel {
 
 			DeviceTask<Void, Map<String, String>> task = new DeviceTask<Void, Map<String, String>>() {
 				@Override
-				protected Map<String, String> doInBackground(IDeviceController device)
+				public Map<String, String> run(IDeviceController device)
 						throws Exception {
 					Map<String, String> rv = new HashMap<String, String>();
 					
@@ -115,7 +115,7 @@ public class DeviceList extends PluginPanel {
 				}
 
 				@Override
-				protected void onPostExecute(Map<String, String> result) {
+				public void onSuccess(Map<String, String> result) {
 					if (result.get("name") == null) {
 						_names.put(serial, "Unknown");
 					} else {

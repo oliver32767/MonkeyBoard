@@ -132,13 +132,13 @@ public class DeviceProperties extends PluginPanel {
 			DeviceTask<Void, Map<String, String>> task = new DeviceTask<Void, Map<String, String>>() {
 
 				@Override
-				protected Map<String, String> doInBackground(
+				public Map<String, String> run(
 						IDeviceController device) throws Exception {
 					return device.getProperties();
 				}
 
 				@Override
-				protected void onPostExecute(Map<String, String> result) {
+				public void onSuccess(Map<String, String> result) {
 					updateTree(result);
 				}
 
