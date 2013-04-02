@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +114,7 @@ public class PropertyList extends PluginPanel {
 	private JTextField textField;
 	private JTable table;
 	private EventList<Property> propertyList = new BasicEventList<Property>();
+	private List<String> propertyEditorHistory = new ArrayList<String>();
 
 	@Override
 	public void onCreate() {
@@ -272,24 +274,24 @@ public class PropertyList extends PluginPanel {
 	}
 
 	private void showPropertyEditor(String serial, String defaultValue) {
-		if (defaultValue == null) {
-			defaultValue = "";
-		}
+//		if (defaultValue == null) {
+//			defaultValue = "";
+//		}
 
 		JPanel message = new JPanel();
 		message.setLayout(new MigLayout("inset 5", "[]", "[][]"));
-		message.setPreferredSize(new Dimension(400, 125));
+		message.setPreferredSize(new Dimension(400, 100));
+		
 		JLabel label = new JLabel(
 				"<html>"
 						+ "Enter the key of the property you wish to edit followed by the desired value, separated with a space.<br>"
-						+ "To unset a property, enter the property key without supplying a value.<br>"
-						+ "Note: some properties can't be modified."
+						+ "To unset a property, enter the property key without supplying a value."
 						+ "</html>");
 		message.add(label, "cell 0 0");
 
-		String[] list = { defaultValue };
-		final JComboBox jcb = new JComboBox(list);
+		final JComboBox jcb = new JComboBox(propertyEditorHistory.toArray());
 		jcb.setEditable(true);
+		jcb.getEditor().setItem(defaultValue);
 		jcb.addAncestorListener(new AncestorListener() {
 			@Override
 			public void ancestorAdded(AncestorEvent arg0) {
@@ -297,21 +299,30 @@ public class PropertyList extends PluginPanel {
 			}
 
 			@Override
-			public void ancestorMoved(AncestorEvent arg0) {}
+			public void ancestorMoved(AncestorEvent arg0) {
+			}
 
 			@Override
-			public void ancestorRemoved(AncestorEvent arg0) {}
-			
+			public void ancestorRemoved(AncestorEvent arg0) {
+			}
+
 		});
 		message.add(jcb, "cell 0 1, growx");
 		if (JOptionPane.showConfirmDialog(PropertyList.this, message,
 				"setprop property.key [value]", JOptionPane.OK_CANCEL_OPTION) != 0) {
-			// then OK was not pressed
+			// then OK was not pressed, exit without doing anything
 			return;
 		}
+		
 		String rv = (String) jcb.getSelectedItem();
+		rv = rv.trim();
 		if (rv == null) {
 			return;
+		}
+		
+		if (!propertyEditorHistory.contains(rv)) {
+			// put unique items at the beginning of the list
+			propertyEditorHistory.add(0, rv);
 		}
 		String[] kv = rv.split(" ", 2);
 
