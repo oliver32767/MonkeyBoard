@@ -370,5 +370,22 @@ public class IDeviceStub implements IDeviceController {
 		
 	}
 
+	@Override
+	public String executeShellCommand(String command) throws TimeoutException,
+			AdbCommandRejectedException, ShellCommandUnresponsiveException,
+			IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String executeShellCommand(String command,
+			int maxTimeToOutputResponse) throws TimeoutException,
+			AdbCommandRejectedException, ShellCommandUnresponsiveException,
+			IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }
