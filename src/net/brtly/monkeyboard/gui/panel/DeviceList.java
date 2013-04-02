@@ -275,7 +275,8 @@ public class DeviceList extends PluginPanel {
 		_table.getColumnModel().getColumn(1).setMaxWidth(300);
 		_table.getColumnModel().getColumn(1).setPreferredWidth(150);
 //		_table.getColumnModel().getColumn(2).setMinWidth(48);
-		_table.getColumnModel().getColumn(2).setMaxWidth(48);
+		_table.getColumnModel().getColumn(2).setPreferredWidth(48);
+		_table.getColumnModel().getColumn(2).setMaxWidth(96);
 
 		getEventBus().register(_model);
 	}
