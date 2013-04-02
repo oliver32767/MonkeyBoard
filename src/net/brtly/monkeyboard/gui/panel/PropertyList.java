@@ -1,14 +1,10 @@
 package net.brtly.monkeyboard.gui.panel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +13,13 @@ import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 
 import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
@@ -115,21 +113,13 @@ public class PropertyList extends PluginPanel {
 	@Override
 	public void onCreate() {
 
-		setLayout(new MigLayout("inset 5", "[grow][]", "[][grow]"));
+		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]", "[][grow]"));
 
 		textField = new JTextField();
 		
 		textField.setLayout(new BorderLayout());
 
-        //creating dummy image...
-        Image image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
-        Graphics graphics = image.getGraphics();
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, 16, 16);
-        graphics.setColor(Color.RED);
-        graphics.fillRect(2, 7, 14, 3);
-
-        JLabel label = new JLabel(new ImageIcon(image));
+        JLabel label = new JLabel(new ImageIcon(ConsolePanel.class.getResource("/img/clear.png")));
         textField.add(label, BorderLayout.EAST);
         label.addMouseListener(new MouseAdapter() {
             @Override
@@ -140,8 +130,10 @@ public class PropertyList extends PluginPanel {
 		
 		add(textField, "cell 0 0,growx");
 
-		JButton btnReset = new JButton("Reload");
-		btnReset.addActionListener(new ActionListener() {
+		JButton btnReload = new JButton();
+		btnReload.setToolTipText("Reload");
+		btnReload.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/reload.png")));
+		btnReload.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -149,10 +141,12 @@ public class PropertyList extends PluginPanel {
 			}
 
 		});
-		add(btnReset, "cell 1 0");
+		add(btnReload, "cell 1 0,wmax 24,hmax 26");
 
-		JButton btnSet = new JButton("Set");
-		btnSet.addActionListener(new ActionListener() {
+		JButton btnEdit = new JButton();
+		btnEdit.setToolTipText("Edit");
+		btnEdit.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/edit-property.png")));
+		btnEdit.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -163,25 +157,11 @@ public class PropertyList extends PluginPanel {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				
-				String rv = (String) JOptionPane.showInputDialog(
-						PropertyList.this, "[property.key] [value]",
-						"Set Property", JOptionPane.PLAIN_MESSAGE, null, null,
-						null);
-				if (rv == null) {
-					return;
-				}
-				String[] kv = rv.split(" ", 2);
-
-				if (kv.length == 1) {
-					setProperty(serial, kv[0], "");
-				} else {
-					setProperty(serial, kv[0], kv[1]);
-				}
+				showPropertyEditor(serial, null);
 			}
 
 		});
-		add(btnSet, "cell 2 0");
+		add(btnEdit, "cell 2 0,wmax 24,hmax 26");
 
 		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane, "cell 0 1 3 1,grow");
@@ -199,6 +179,22 @@ public class PropertyList extends PluginPanel {
 						new PropertyTableFormat());
 
 		table = new JTable(propertyTableModel);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.addMouseListener(new MouseAdapter() {
+			   public void mouseClicked(MouseEvent e) {
+				      if (e.getClickCount() == 2) {
+				    	  String serial = getDeviceManager().getFocusedDevice();
+				    	  if (serial == null) {
+				    		  return;
+				    	  }
+				         JTable target = (JTable)e.getSource();
+				         int row = target.getSelectedRow();
+				         int column = target.getSelectedColumn();
+				         String defaultValue = target.getValueAt(row, 0) + " " + target.getValueAt(row, 1);
+				         	showPropertyEditor(serial, defaultValue);
+				         }
+				   }
+				});
 		scrollPane.setViewportView(table);
 
 		getEventBus().register(this);
@@ -266,6 +262,28 @@ public class PropertyList extends PluginPanel {
 		}
 	}
 
+	private void showPropertyEditor(String serial, String defaultValue) {
+		if (defaultValue == null) {
+			defaultValue = "";
+		}
+		String[] list = {defaultValue};
+		JComboBox jcb = new JComboBox(list);
+		jcb.setEditable(true);
+		
+		JOptionPane.showMessageDialog(PropertyList.this, jcb, "[property.key] [value]", JOptionPane.QUESTION_MESSAGE);
+		String rv = (String) jcb.getSelectedItem();
+		if (rv == null) {
+			return;
+		}
+		String[] kv = rv.split(" ", 2);
+
+		if (kv.length == 1) {
+			setProperty(serial, kv[0], "");
+		} else {
+			setProperty(serial, kv[0], kv[1]);
+		}
+	}
+	
 	private void setProperty(final String serial, String key, String value) {
 		final String command = "setprop " + key + " \"" + value + "\"";
 		DeviceTask<Void, Void> task = new DeviceTask<Void, Void>() {
