@@ -32,7 +32,7 @@ import net.brtly.monkeyboard.api.Plugin;
 import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.api.event.DeviceFocusedEvent;
 import net.brtly.monkeyboard.api.event.DeviceUnfocusedEvent;
-import net.brtly.monkeyboard.gui.JHintTextField;
+import net.brtly.monkeyboard.gui.widget.JHintTextField;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;

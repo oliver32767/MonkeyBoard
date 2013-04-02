@@ -1,4 +1,4 @@
-package net.brtly.monkeyboard.gui;
+package net.brtly.monkeyboard.gui.widget;
 
 import java.awt.Color;
 import java.awt.Font;

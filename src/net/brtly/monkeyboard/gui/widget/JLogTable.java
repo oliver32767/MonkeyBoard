@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.brtly.monkeyboard.gui;
+package net.brtly.monkeyboard.gui.widget;
 
 import java.awt.Color;
 import java.awt.Component;

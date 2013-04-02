@@ -34,7 +34,7 @@ import javax.swing.JToggleButton;
 
 import net.brtly.monkeyboard.api.Plugin;
 import net.brtly.monkeyboard.api.PluginPanel;
-import net.brtly.monkeyboard.gui.JLogTable;
+import net.brtly.monkeyboard.gui.widget.JLogTable;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;

@@ -37,6 +37,7 @@ import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.gui.panel.ConsolePanel;
 import net.brtly.monkeyboard.gui.panel.DeviceList;
 import net.brtly.monkeyboard.gui.panel.PropertyList;
+import net.brtly.monkeyboard.gui.widget.StatusBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
