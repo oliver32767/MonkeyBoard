@@ -112,7 +112,7 @@ public class PropertyList extends PluginPanel {
 	}
 
 	private static final Log LOG = LogFactory.getLog(PropertyList.class);
-	private JTextField textField;
+	private JHintTextField textField;
 	private JTable table;
 	private EventList<Property> propertyList = new BasicEventList<Property>();
 	private List<String> propertyEditorHistory = new ArrayList<String>();
@@ -123,8 +123,8 @@ public class PropertyList extends PluginPanel {
 		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]",
 				"[][grow]"));
 
-		textField = new JHintTextField("Search properties");
-
+		textField = new JHintTextField();
+		textField.setHint("Search properties");
 		textField.setLayout(new BorderLayout());
 
 		JLabel label = new JLabel(new ImageIcon(

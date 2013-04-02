@@ -1,45 +1,39 @@
 package net.brtly.monkeyboard.gui;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 
+import javax.swing.FocusManager;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 
-public class JHintTextField extends JTextField implements FocusListener {
+public class JHintTextField extends JTextField {
 
 	private static final long serialVersionUID = 672731309440727363L;
-	private final String hint;
+	private String hint;
 
-    public JHintTextField(final String hint) {
-        super(hint);
-        this.hint = hint;
-        super.setForeground(UIManager.getDefaults().getColor("TextField.inactiveForeground"));
-        super.addFocusListener(this);
-    }
+	public void setHint(String hint) {
+		this.hint = hint;
+	}
 
-    @Override
-    public void focusGained(FocusEvent e) {
-        if(this.getText().isEmpty()) {
-        	// FIXME remove listeners, change the text and re-add listeners
-        	super.setForeground(UIManager.getDefaults().getColor("TextField.foreground"));
-            super.setText("");
-        }
-    }
-    @Override
-    public void focusLost(FocusEvent e) {
-        if(this.getText().isEmpty()) {
-        	// FIXME remove listeners, change the text and re-add listeners
-        	super.setForeground(UIManager.getDefaults().getColor("TextField.inactiveForeground"));
-            super.setText(hint);
-        }
-    }
+	public String getHint() {
+		return hint;
+	}
 
-    @Override
-    public String getText() {
-    	System.out.println("DERP");
-        String typed = super.getText();
-        return typed.equals(hint) ? "" : typed;
-    }
+	@Override
+	protected void paintComponent(java.awt.Graphics g) {
+		super.paintComponent(g);
+
+		if (getText().isEmpty()
+				&& !(FocusManager.getCurrentKeyboardFocusManager()
+						.getFocusOwner() == this)) {
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.setBackground(Color.gray);
+			g2.setFont(getFont().deriveFont(Font.ITALIC));
+			g2.drawString(hint, 5, 20); // figure out x, y from font's
+										// FontMetrics and size of component.
+			g2.dispose();
+		}
+	}
 
 }
