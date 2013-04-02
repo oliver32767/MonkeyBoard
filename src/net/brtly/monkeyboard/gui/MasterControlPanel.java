@@ -61,7 +61,7 @@ public class MasterControlPanel extends JFrame {
 
 	public MasterControlPanel() {
 		setBounds(120, 80, 600, 400);
-		setTitle("Android Control Tool");
+		setTitle("MonkeyBoard");
 		initWindowListener();
 		_eventBus = new SwingEventBus();
 
