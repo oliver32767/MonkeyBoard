@@ -1,6 +1,7 @@
 package net.brtly.monkeyboard.gui.panel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -16,10 +17,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
@@ -113,26 +117,29 @@ public class PropertyList extends PluginPanel {
 	@Override
 	public void onCreate() {
 
-		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]", "[][grow]"));
+		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]",
+				"[][grow]"));
 
 		textField = new JTextField();
-		
+
 		textField.setLayout(new BorderLayout());
 
-        JLabel label = new JLabel(new ImageIcon(ConsolePanel.class.getResource("/img/clear.png")));
-        textField.add(label, BorderLayout.EAST);
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                textField.setText("");
-            }
-        });
-		
+		JLabel label = new JLabel(new ImageIcon(
+				ConsolePanel.class.getResource("/img/clear.png")));
+		textField.add(label, BorderLayout.EAST);
+		label.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				textField.setText("");
+			}
+		});
+
 		add(textField, "cell 0 0,growx");
 
 		JButton btnReload = new JButton();
 		btnReload.setToolTipText("Reload");
-		btnReload.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/reload.png")));
+		btnReload.setIcon(new ImageIcon(ConsolePanel.class
+				.getResource("/img/reload.png")));
 		btnReload.addActionListener(new ActionListener() {
 
 			@Override
@@ -145,7 +152,8 @@ public class PropertyList extends PluginPanel {
 
 		JButton btnEdit = new JButton();
 		btnEdit.setToolTipText("Edit");
-		btnEdit.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/edit-property.png")));
+		btnEdit.setIcon(new ImageIcon(ConsolePanel.class
+				.getResource("/img/edit-property.png")));
 		btnEdit.addActionListener(new ActionListener() {
 
 			@Override
@@ -181,20 +189,21 @@ public class PropertyList extends PluginPanel {
 		table = new JTable(propertyTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.addMouseListener(new MouseAdapter() {
-			   public void mouseClicked(MouseEvent e) {
-				      if (e.getClickCount() == 2) {
-				    	  String serial = getDeviceManager().getFocusedDevice();
-				    	  if (serial == null) {
-				    		  return;
-				    	  }
-				         JTable target = (JTable)e.getSource();
-				         int row = target.getSelectedRow();
-				         int column = target.getSelectedColumn();
-				         String defaultValue = target.getValueAt(row, 0) + " " + target.getValueAt(row, 1);
-				         	showPropertyEditor(serial, defaultValue);
-				         }
-				   }
-				});
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					String serial = getDeviceManager().getFocusedDevice();
+					if (serial == null) {
+						return;
+					}
+					JTable target = (JTable) e.getSource();
+					int row = target.getSelectedRow();
+					int column = target.getSelectedColumn();
+					String defaultValue = target.getValueAt(row, 0) + " "
+							+ target.getValueAt(row, 1);
+					showPropertyEditor(serial, defaultValue);
+				}
+			}
+		});
 		scrollPane.setViewportView(table);
 
 		getEventBus().register(this);
@@ -215,7 +224,7 @@ public class PropertyList extends PluginPanel {
 		setTitle("Property List [" + event.getSerialNumber() + "]");
 		fetchDeviceProperties(event.getSerialNumber());
 	}
-	
+
 	@Subscribe
 	public void onDeviceUnfocusedEvent(DeviceUnfocusedEvent event) {
 		if (event.getFocusedDevice() == null) {
@@ -266,11 +275,40 @@ public class PropertyList extends PluginPanel {
 		if (defaultValue == null) {
 			defaultValue = "";
 		}
-		String[] list = {defaultValue};
-		JComboBox jcb = new JComboBox(list);
+
+		JPanel message = new JPanel();
+		message.setLayout(new MigLayout("inset 5", "[]", "[][]"));
+		message.setPreferredSize(new Dimension(400, 125));
+		JLabel label = new JLabel(
+				"<html>"
+						+ "Enter the key of the property you wish to edit followed by the desired value, separated with a space.<br>"
+						+ "To unset a property, enter the property key without supplying a value.<br>"
+						+ "Note: some properties can't be modified."
+						+ "</html>");
+		message.add(label, "cell 0 0");
+
+		String[] list = { defaultValue };
+		final JComboBox jcb = new JComboBox(list);
 		jcb.setEditable(true);
-		
-		JOptionPane.showMessageDialog(PropertyList.this, jcb, "[property.key] [value]", JOptionPane.QUESTION_MESSAGE);
+		jcb.addAncestorListener(new AncestorListener() {
+			@Override
+			public void ancestorAdded(AncestorEvent arg0) {
+				arg0.getComponent().requestFocusInWindow();
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent arg0) {}
+
+			@Override
+			public void ancestorRemoved(AncestorEvent arg0) {}
+			
+		});
+		message.add(jcb, "cell 0 1, growx");
+		if (JOptionPane.showConfirmDialog(PropertyList.this, message,
+				"setprop property.key [value]", JOptionPane.OK_CANCEL_OPTION) != 0) {
+			// then OK was not pressed
+			return;
+		}
 		String rv = (String) jcb.getSelectedItem();
 		if (rv == null) {
 			return;
@@ -283,7 +321,7 @@ public class PropertyList extends PluginPanel {
 			setProperty(serial, kv[0], kv[1]);
 		}
 	}
-	
+
 	private void setProperty(final String serial, String key, String value) {
 		final String command = "setprop " + key + " \"" + value + "\"";
 		DeviceTask<Void, Void> task = new DeviceTask<Void, Void>() {
