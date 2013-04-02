@@ -32,6 +32,7 @@ import net.brtly.monkeyboard.api.Plugin;
 import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.api.event.DeviceFocusedEvent;
 import net.brtly.monkeyboard.api.event.DeviceUnfocusedEvent;
+import net.brtly.monkeyboard.gui.JHintTextField;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;
@@ -122,12 +123,13 @@ public class PropertyList extends PluginPanel {
 		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]",
 				"[][grow]"));
 
-		textField = new JTextField();
+		textField = new JHintTextField("Search properties");
 
 		textField.setLayout(new BorderLayout());
 
 		JLabel label = new JLabel(new ImageIcon(
 				ConsolePanel.class.getResource("/img/clear.png")));
+		label.setToolTipText("Clear filter");
 		textField.add(label, BorderLayout.EAST);
 		label.addMouseListener(new MouseAdapter() {
 			@Override
