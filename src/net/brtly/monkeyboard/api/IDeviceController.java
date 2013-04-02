@@ -17,7 +17,12 @@
  ******************************************************************************/
 package net.brtly.monkeyboard.api;
 
+import java.io.IOException;
+
+import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
+import com.android.ddmlib.ShellCommandUnresponsiveException;
+import com.android.ddmlib.TimeoutException;
 
 /**
  * Extends the ddmlib IDevice interface and adds additional values for DeviceState
@@ -49,4 +54,7 @@ public interface IDeviceController extends com.android.ddmlib.IDevice, com.andro
 			}
 		}
 	}
+	
+	public String executeShellCommand(String command) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException;
+	public String executeShellCommand(String command, int maxTimeToOutputResponse) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException;
 }

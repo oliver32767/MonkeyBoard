@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import net.brtly.monkeyboard.api.IDeviceController;
 
 import com.android.chimpchat.ChimpManager;
+import com.android.chimpchat.adb.CommandOutputCapture;
 import com.android.chimpchat.core.IChimpDevice;
 import com.android.chimpchat.core.IChimpImage;
 import com.android.chimpchat.core.IChimpView;
@@ -36,6 +37,7 @@ import com.android.chimpchat.core.TouchPressType;
 import com.android.chimpchat.hierarchyviewer.HierarchyViewer;
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.Client;
+import com.android.ddmlib.DdmPreferences;
 import com.android.ddmlib.FileListingService;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
@@ -152,11 +154,23 @@ public class DeviceController implements IDeviceController {
 	}
 
 	@Override
+	public String executeShellCommand(String command) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
+		return executeShellCommand(command, DdmPreferences.getTimeOut());
+	}
+	
+	@Override
+	public String executeShellCommand(String command, int maxTimeToOutputResponse) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
+		CommandOutputCapture capture = new CommandOutputCapture();
+		_device.executeShellCommand(command, capture, maxTimeToOutputResponse);
+		return capture.toString();
+	}
+	
+	@Override
 	public void executeShellCommand(String command,
 			IShellOutputReceiver receiver) throws TimeoutException,
 			AdbCommandRejectedException, ShellCommandUnresponsiveException,
 			IOException {
-		// TODO Auto-generated method stub
+		_device.executeShellCommand(command, receiver);
 		
 	}
 
@@ -165,8 +179,7 @@ public class DeviceController implements IDeviceController {
 			IShellOutputReceiver receiver, int maxTimeToOutputResponse)
 			throws TimeoutException, AdbCommandRejectedException,
 			ShellCommandUnresponsiveException, IOException {
-		// TODO Auto-generated method stub
-		
+		_device.executeShellCommand(command, receiver, maxTimeToOutputResponse);
 	}
 
 	@Override
