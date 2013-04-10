@@ -32,7 +32,6 @@ import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
 import net.brtly.monkeyboard.api.IDeviceController.DeviceState;
 import net.brtly.monkeyboard.api.IDeviceManager;
-import net.brtly.monkeyboard.api.IEventBus;
 import net.brtly.monkeyboard.api.event.DeviceBuildInfoChangedEvent;
 import net.brtly.monkeyboard.api.event.DeviceConnectedEvent;
 import net.brtly.monkeyboard.api.event.DeviceDisconnectedEvent;
@@ -54,6 +53,7 @@ import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener;
 import com.android.ddmlib.Client;
 import com.android.ddmlib.IDevice;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
@@ -73,7 +73,7 @@ public final class DeviceManager implements IDeviceManager,
 	private static boolean _isInit = false;
 
 	private DeviceManagerState _state;
-	private IEventBus _eventBus;
+	private EventBus _eventBus;
 	private DeviceThreadPool _deviceThreadPool;
 	private Map<String, DeviceState> _devices;
 	private Map<String, IChimpDevice> _chimpDevices;
@@ -94,7 +94,7 @@ public final class DeviceManager implements IDeviceManager,
 	 * 
 	 * @param eventBus
 	 */
-	public static void init(IEventBus eventBus) {
+	public static void init(EventBus eventBus) {
 		synchronized (INSTANCE) {
 			if (_isInit) {
 				throw new IllegalStateException("DeviceManager already inited!");
