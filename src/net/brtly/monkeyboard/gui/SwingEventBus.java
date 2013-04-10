@@ -18,8 +18,6 @@
 package net.brtly.monkeyboard.gui;
 
 
-import net.brtly.monkeyboard.api.IEventBus;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,7 +28,7 @@ import com.google.common.eventbus.AsyncEventBus;
  * @author obartley
  *
  */
-public class SwingEventBus extends AsyncEventBus implements IEventBus {
+public class SwingEventBus extends AsyncEventBus {
 
 	private static final Log LOG = LogFactory.getLog(SwingEventBus.class);
 

@@ -22,6 +22,8 @@ import java.awt.EventQueue;
 import java.awt.FileDialog;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +33,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import net.brtly.monkeyboard.adb.DeviceManager;
-import net.brtly.monkeyboard.api.IEventBus;
-import net.brtly.monkeyboard.api.PluginDockable;
-import net.brtly.monkeyboard.api.PluginPanel;
+import net.brtly.monkeyboard.api.plugin.PluginDelegate;
+import net.brtly.monkeyboard.api.plugin.PluginView;
 import net.brtly.monkeyboard.gui.panel.ConsolePanel;
 import net.brtly.monkeyboard.gui.panel.DeviceList;
 import net.brtly.monkeyboard.gui.panel.PropertyList;
 import net.brtly.monkeyboard.gui.widget.StatusBar;
+import net.brtly.monkeyboard.plugin.PluginDelegateFactory;
+import net.brtly.monkeyboard.plugin.PluginDockable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +51,8 @@ import bibliothek.gui.dock.SplitDockStation;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.station.split.SplitDockProperty;
 
+import com.google.common.eventbus.EventBus;
+
 public class MasterControlPanel extends JFrame {
 	private static final long serialVersionUID = -9025534330767761624L;
 	private static final Log LOG = LogFactory.getLog(MasterControlPanel.class);
@@ -55,7 +60,7 @@ public class MasterControlPanel extends JFrame {
 
 	private DockController _controller;
 	private SplitDockStation _station;
-	private IEventBus _eventBus;
+	private EventBus _eventBus;
 
 	JButton btnAdb;
 	StatusBar statusPanel;
@@ -115,27 +120,41 @@ public class MasterControlPanel extends JFrame {
 	}
 
 	private void createDefaultLayout() {
-		addPanel(DeviceList.class);
-		addPanel(PropertyList.class, SplitDockProperty.EAST);
-		addPanel(ConsolePanel.class, SplitDockProperty.SOUTH);
+		addView(DeviceList.class);
+		addView(PropertyList.class, SplitDockProperty.EAST);
+		addView(ConsolePanel.class, SplitDockProperty.SOUTH);
 	}
 	
-	private void addPanel(Class<? extends PluginPanel> c) {
-		addPanel(c, null);
+	private void addView(Class<? extends PluginView> c) {
+		addView(c, null);
 	}
-	private void addPanel(Class<? extends PluginPanel> c, SplitDockProperty property) {
-		PluginDockable dockable = new PluginDockable();
-		PluginPanel panel;
+	private void addView(Class<? extends PluginView> c, SplitDockProperty property) {
+		PluginView panel;
 		try {
-			panel = c.newInstance();
+			Class<?> cls[] = new Class[] {PluginDelegate.class};
+			Constructor<? extends PluginView> init = c.getConstructor(cls);
+			panel = init.newInstance(PluginDelegateFactory.newDelegate(DeviceManager.getDeviceManager(), _eventBus));
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 			return;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 			return;
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			return;
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			return;
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return;
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			return;
 		}
-		panel.attach(dockable, DeviceManager.getDeviceManager(), _eventBus);
+		PluginDockable dockable = new PluginDockable();
+		panel.attach(dockable);
 		dockable.add(panel);
 		_station.drop(dockable, property);
 	}

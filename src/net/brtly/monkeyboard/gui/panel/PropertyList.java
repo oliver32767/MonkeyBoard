@@ -21,17 +21,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
-import net.brtly.monkeyboard.api.Plugin;
-import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.api.event.DeviceFocusedEvent;
 import net.brtly.monkeyboard.api.event.DeviceUnfocusedEvent;
+import net.brtly.monkeyboard.api.plugin.PluginDelegate;
+import net.brtly.monkeyboard.api.plugin.PluginView;
+import net.brtly.monkeyboard.api.plugin.annotation.View;
 import net.brtly.monkeyboard.gui.widget.JHintTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -51,8 +51,8 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import com.google.common.eventbus.Subscribe;
 
-@Plugin(title = "Property List", icon = "res/img/properties.png")
-public class PropertyList extends PluginPanel {
+@View(title = "Property List", icon = "res/img/properties.png")
+public class PropertyList extends PluginView {
 
 	private static final long serialVersionUID = 3666981395231189022L;
 
@@ -117,9 +117,8 @@ public class PropertyList extends PluginPanel {
 	private EventList<Property> propertyList = new BasicEventList<Property>();
 	private List<String> propertyEditorHistory = new ArrayList<String>();
 
-	@Override
-	public void onCreate() {
-
+	public PropertyList(PluginDelegate delegate) {
+		super(delegate);
 		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]",
 				"[][grow]"));
 
@@ -148,7 +147,7 @@ public class PropertyList extends PluginPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				fetchDeviceProperties(getDeviceManager().getFocusedDevice());
+				fetchDeviceProperties(getDelegate().getDeviceManager().getFocusedDevice());
 			}
 
 		});
@@ -162,7 +161,7 @@ public class PropertyList extends PluginPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String serial = getDeviceManager().getFocusedDevice();
+				String serial = getDelegate().getDeviceManager().getFocusedDevice();
 				if (serial == null) {
 					JOptionPane.showMessageDialog(PropertyList.this,
 							"No device selected!", null,
@@ -195,7 +194,7 @@ public class PropertyList extends PluginPanel {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					String serial = getDeviceManager().getFocusedDevice();
+					String serial = getDelegate().getDeviceManager().getFocusedDevice();
 					if (serial == null) {
 						return;
 					}
@@ -209,19 +208,9 @@ public class PropertyList extends PluginPanel {
 			}
 		});
 		scrollPane.setViewportView(table);
-
-		getEventBus().register(this);
-
-		// Set up a timer event to refresh the property table
-		// ScheduledExecutorService exec =
-		// Executors.newSingleThreadScheduledExecutor();
-		// exec.scheduleAtFixedRate(new Runnable() {
-		// @Override
-		// public void run() {
-		// fetchDeviceProperties(getDeviceManager().getFocusedDevice());
-		// }
-		// }, 0, 1000, TimeUnit.MILLISECONDS);
+		getDelegate().getEventBus().register(this);
 	}
+	
 
 	@Subscribe
 	public void onDeviceFocusedEvent(DeviceFocusedEvent event) {
@@ -262,7 +251,7 @@ public class PropertyList extends PluginPanel {
 				updateData(properties);
 			}
 		};
-		getDeviceManager().submitTask(serial, task);
+		getDelegate().getDeviceManager().submitTask(serial, task);
 	}
 
 	private void updateData(Map<String, String> properties) {
@@ -351,6 +340,6 @@ public class PropertyList extends PluginPanel {
 			}
 
 		};
-		getDeviceManager().submitTask(serial, task);
+		getDelegate().getDeviceManager().submitTask(serial, task);
 	}
 }

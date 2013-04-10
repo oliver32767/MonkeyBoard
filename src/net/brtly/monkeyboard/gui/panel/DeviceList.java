@@ -35,10 +35,11 @@ import javax.swing.table.AbstractTableModel;
 import net.brtly.monkeyboard.adb.DeviceManager;
 import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
-import net.brtly.monkeyboard.api.Plugin;
-import net.brtly.monkeyboard.api.PluginPanel;
 import net.brtly.monkeyboard.api.event.DeviceEvent;
 import net.brtly.monkeyboard.api.event.DeviceStateChangedEvent;
+import net.brtly.monkeyboard.api.plugin.PluginDelegate;
+import net.brtly.monkeyboard.api.plugin.PluginView;
+import net.brtly.monkeyboard.api.plugin.annotation.View;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;
@@ -46,8 +47,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.eventbus.Subscribe;
 
-@Plugin(title = "Device List", icon = "res/img/device.png")
-public class DeviceList extends PluginPanel {
+@View(title = "Device List", icon = "res/img/device.png")
+public class DeviceList extends PluginView {
 
 	private class SortedArrayList<T> extends ArrayList<T> {
 
@@ -72,8 +73,8 @@ public class DeviceList extends PluginPanel {
 			_devices = new SortedArrayList<String>();
 			_names = new HashMap<String, String>();
 			_versions = new HashMap<String, String>();
-			if (getDeviceManager() != null) {
-				Set<String> dev = getDeviceManager()
+			if (getDelegate().getDeviceManager() != null) {
+				Set<String> dev = getDelegate().getDeviceManager()
 						.getDeviceSerialNumbers();
 				for (String s : dev) {
 					_devices.insertSorted(s);
@@ -94,7 +95,7 @@ public class DeviceList extends PluginPanel {
 		}
 
 		public void fetchDeviceInfo(final String serial) {
-			if (getDeviceManager() == null) {
+			if (getDelegate().getDeviceManager() == null) {
 				return;
 			}
 
@@ -129,7 +130,7 @@ public class DeviceList extends PluginPanel {
 					fireTableDataChanged();
 				}
 			};
-			getDeviceManager().submitTask(serial, task);
+			getDelegate().getDeviceManager().submitTask(serial, task);
 		}
 
 		@Subscribe
@@ -202,7 +203,7 @@ public class DeviceList extends PluginPanel {
 
 		@Override
 		public int getRowCount() {
-			return getDeviceManager().getDeviceSerialNumbers()
+			return getDelegate().getDeviceManager().getDeviceSerialNumbers()
 					.size();
 		}
 
@@ -214,7 +215,7 @@ public class DeviceList extends PluginPanel {
 				case 0: // Status
 					return new ImageIcon(String.format(
 							"res/img/android-%s.png",
-							getDeviceManager()
+							getDelegate().getDeviceManager()
 									.getDeviceState(_devices.get(row))
 									.toString().toLowerCase()));
 				case 1: // Serial
@@ -252,8 +253,8 @@ public class DeviceList extends PluginPanel {
 	private JTable _table;
 	private DeviceListModel _model;
 
-	@Override
-	public void onCreate() {
+	public DeviceList(PluginDelegate delegate) {
+		super(delegate);
 		setLayout(new MigLayout("inset 5", "[grow]", "[grow]"));
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -277,8 +278,7 @@ public class DeviceList extends PluginPanel {
 //		_table.getColumnModel().getColumn(2).setMinWidth(48);
 		_table.getColumnModel().getColumn(2).setPreferredWidth(48);
 		_table.getColumnModel().getColumn(2).setMaxWidth(96);
-
-		getEventBus().register(_model);
+		
+		getDelegate().getEventBus().register(_model);
 	}
-
 }

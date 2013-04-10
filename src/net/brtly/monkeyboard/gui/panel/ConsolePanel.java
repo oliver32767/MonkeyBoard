@@ -32,8 +32,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 
-import net.brtly.monkeyboard.api.Plugin;
-import net.brtly.monkeyboard.api.PluginPanel;
+import net.brtly.monkeyboard.api.plugin.PluginDelegate;
+import net.brtly.monkeyboard.api.plugin.PluginView;
+import net.brtly.monkeyboard.api.plugin.annotation.View;
 import net.brtly.monkeyboard.gui.widget.JLogTable;
 import net.miginfocom.swing.MigLayout;
 
@@ -44,19 +45,17 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
-@Plugin(title = "Console Log", icon = "res/img/console.png")
-public class ConsolePanel extends PluginPanel {
-	public ConsolePanel() {
-	}
+@View(title = "Console", icon = "res/img/console.png")
+public class ConsolePanel extends PluginView {
 
 	private class JLogTableAppender extends WriterAppender {
 		@Override
 		public void append(LoggingEvent event) {
-			_table.log(event.getLevel().toInt(), 
-					event.getTimeStamp() - LoggingEvent.getStartTime(), 
-					String.format("[%s] %s",
-						event.getThreadName(),
-						event.getLocationInformation().fullInfo),
+			_table.log(
+					event.getLevel().toInt(),
+					event.getTimeStamp() - LoggingEvent.getStartTime(),
+					String.format("[%s] %s", event.getThreadName(),
+							event.getLocationInformation().fullInfo),
 					event.getMessage());
 		}
 	}
@@ -67,22 +66,24 @@ public class ConsolePanel extends PluginPanel {
 	private JScrollPane scrollPane;
 	private JLogTable _table;
 	private JLogTableAppender _appender;
-	
-	@Override
-	public void onCreate() {
+
+	public ConsolePanel(PluginDelegate delegate) {
+		super(delegate);
 		setLayout(new MigLayout("inset 5",
 				"[grow][:100:100][24:n:24][24:n:24]", "[::24][grow]"));
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setToolTipText("Log Level");
 		comboBox.setMaximumRowCount(6);
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Fatal", "Error", "Warn", "Info", "Debug", "Trace"}));
+		comboBox.setModel(new DefaultComboBoxModel(new String[] { "Fatal",
+				"Error", "Warn", "Info", "Debug", "Trace" }));
 		comboBox.setSelectedIndex(5);
 		add(comboBox, "cell 1 0,growx");
 
 		JButton btnC = new JButton("");
 		btnC.setToolTipText("Clear Buffer");
-		btnC.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/clear-document.png")));
+		btnC.setIcon(new ImageIcon(ConsolePanel.class
+				.getResource("/img/clear-document.png")));
 		btnC.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -93,7 +94,8 @@ public class ConsolePanel extends PluginPanel {
 
 		tglbtnV = new JToggleButton("");
 		tglbtnV.setToolTipText("Auto Scroll");
-		tglbtnV.setIcon(new ImageIcon(ConsolePanel.class.getResource("/img/auto-scroll.png")));
+		tglbtnV.setIcon(new ImageIcon(ConsolePanel.class
+				.getResource("/img/auto-scroll.png")));
 		tglbtnV.setSelected(true);
 		tglbtnV.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent ev) {
@@ -111,7 +113,7 @@ public class ConsolePanel extends PluginPanel {
 		scrollPane.getVerticalScrollBar().addAdjustmentListener(
 				new AdjustmentListener() {
 					public void adjustmentValueChanged(AdjustmentEvent e) {
-					    // TODO figure out what to do with this event?
+						// TODO figure out what to do with this event?
 					}
 				});
 
@@ -136,7 +138,7 @@ public class ConsolePanel extends PluginPanel {
 
 		_appender = new JLogTableAppender();
 		_appender.setThreshold(Level.ALL);
-		Logger.getRootLogger().addAppender(_appender);		
+		Logger.getRootLogger().addAppender(_appender);
 	}
 
 	private void logPangrams() {

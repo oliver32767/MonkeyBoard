@@ -20,6 +20,8 @@ package net.brtly.monkeyboard.gui.widget;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.AttributeSet;
@@ -230,6 +233,8 @@ public class JLogTable extends JTable {
 
 	private int _priority = ALL_INT;
 
+	private Timer _resizeTimer;
+	
 	private LogTableStyleProvider _styleProvider;
 	private LogTableAdapter _adapter;
 	private boolean _autoScroll;
@@ -241,9 +246,25 @@ public class JLogTable extends JTable {
 		_adapter.addTableModelListener(this);
 		_autoScroll = true;
 		
+		// All this timer stuff makes it so that autoScroll() isn't called on
+		// every single resize event (which can slow things down considerably)
+		_resizeTimer = new Timer(500, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				autoScroll();
+				
+			}
+			
+		});
+		_resizeTimer.setRepeats(false);
+		
 		addComponentListener(new ComponentAdapter() {
 		    public void componentResized(ComponentEvent e) {
-		        autoScroll();
+		        if (_resizeTimer.isRunning()) {
+		        	_resizeTimer.restart();
+		        } else {
+		        	_resizeTimer.start();
+		        }
 		    }
 		});
 	}
