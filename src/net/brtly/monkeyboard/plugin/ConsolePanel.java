@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.brtly.monkeyboard.gui.panel;
+package net.brtly.monkeyboard.plugin;
 
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;

@@ -35,12 +35,12 @@ import javax.swing.JMenuBar;
 import net.brtly.monkeyboard.adb.DeviceManager;
 import net.brtly.monkeyboard.api.plugin.PluginDelegate;
 import net.brtly.monkeyboard.api.plugin.PluginView;
-import net.brtly.monkeyboard.gui.panel.ConsolePanel;
-import net.brtly.monkeyboard.gui.panel.DeviceList;
-import net.brtly.monkeyboard.gui.panel.PropertyList;
 import net.brtly.monkeyboard.gui.widget.StatusBar;
+import net.brtly.monkeyboard.plugin.ConsolePanel;
+import net.brtly.monkeyboard.plugin.DeviceList;
 import net.brtly.monkeyboard.plugin.PluginDelegateFactory;
 import net.brtly.monkeyboard.plugin.PluginDockable;
+import net.brtly.monkeyboard.plugin.PropertyList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,7 +67,7 @@ public class MasterControlPanel extends JFrame {
 
 	public MasterControlPanel() {
 		setBounds(120, 80, 600, 400);
-		setTitle("MonkeyBoard");
+		setTitle("Monkey Board");
 		initWindowListener();
 		_eventBus = new SwingEventBus();
 

@@ -48,7 +48,7 @@ public class MonkeyBoard {
 		BasicConfigurator.configure();
 		_prefs = new UserPreferences();
 		initLogging();
-		LOG.info("MonkeyBoard v0.1");
+		LOG.info("Monkey Board v0.1");
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			   @Override
@@ -65,7 +65,7 @@ public class MonkeyBoard {
 		
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "MonkeyBoard");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Monkey Board");
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
