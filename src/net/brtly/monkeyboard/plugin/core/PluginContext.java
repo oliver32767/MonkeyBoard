@@ -15,11 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.brtly.monkeyboard.plugin;
+package net.brtly.monkeyboard.plugin.core;
 
-import bibliothek.gui.dock.DefaultDockable;
+import com.google.common.eventbus.EventBus;
 
-public class PluginDockable extends DefaultDockable {
+import net.brtly.monkeyboard.api.IDeviceManager;
+import net.brtly.monkeyboard.api.plugin.IPluginContext;
 
+public class PluginContext implements IPluginContext {
+
+	private final IDeviceManager _deviceManager;
+	private final EventBus _eventBus;
+	
+	public PluginContext(IDeviceManager deviceManager, EventBus eventBus) {
+		_deviceManager = deviceManager;
+		_eventBus = eventBus;
+	}
+
+	@Override
+	public IDeviceManager getDeviceManager() {
+		return _deviceManager;
+	}
+
+	@Override
+	public EventBus getEventBus() {
+		return _eventBus;
+	}
 
 }

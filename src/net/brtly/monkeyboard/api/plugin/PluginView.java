@@ -24,7 +24,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import net.brtly.monkeyboard.api.plugin.annotation.View;
-import net.brtly.monkeyboard.plugin.PluginDockable;
+import net.brtly.monkeyboard.plugin.core.PluginDockable;
 
 @SuppressWarnings("serial")
 public abstract class PluginView extends JPanel implements IPlugin {
