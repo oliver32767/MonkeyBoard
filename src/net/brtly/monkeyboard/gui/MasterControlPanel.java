@@ -41,6 +41,7 @@ import net.brtly.monkeyboard.plugin.DeviceList;
 import net.brtly.monkeyboard.plugin.PropertyList;
 import net.brtly.monkeyboard.plugin.core.PluginDelegateFactory;
 import net.brtly.monkeyboard.plugin.core.PluginDockable;
+import net.brtly.monkeyboard.plugin.core.PluginManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,6 +62,7 @@ public class MasterControlPanel extends JFrame {
 	private DockController _controller;
 	private SplitDockStation _station;
 	private EventBus _eventBus;
+	private PluginManager _pluginManager;
 
 	JButton btnAdb;
 	StatusBar statusPanel;
@@ -100,6 +102,9 @@ public class MasterControlPanel extends JFrame {
 
 		createDefaultLayout();
 
+		_pluginManager = new PluginManager();
+		_pluginManager.loadPlugins();
+
 		
 		_eventBus.register(this);
 
@@ -133,7 +138,7 @@ public class MasterControlPanel extends JFrame {
 		try {
 			Class<?> cls[] = new Class[] {PluginDelegate.class};
 			Constructor<? extends PluginView> init = c.getConstructor(cls);
-			panel = init.newInstance(PluginDelegateFactory.newDelegate(DeviceManager.getDeviceManager(), _eventBus));
+			panel = init.newInstance(PluginDelegateFactory.newDelegate(c.getName(), DeviceManager.getDeviceManager(), _eventBus));
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 			return;

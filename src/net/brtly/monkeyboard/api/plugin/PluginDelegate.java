@@ -25,21 +25,22 @@ import com.google.common.eventbus.EventBus;
 
 public class PluginDelegate {
 	
-
-	private final IDeviceManager _deviceManager;
-	private final EventBus _eventBus;
+	private final IPluginContext _context;
 	
 	public PluginDelegate(IPluginContext context) {
-		_deviceManager = context.getDeviceManager();
-		_eventBus = context.getEventBus();
+		_context = context;
 	}
 	
-	public IDeviceManager getDeviceManager() {
-		return _deviceManager;
+	public final String getPluginName() {
+		return _context.getPluginName();
 	}
 	
-	public EventBus getEventBus() {
-		return _eventBus;
+	public final IDeviceManager getDeviceManager() {
+		return _context.getDeviceManager();
+	}
+	
+	public final EventBus getEventBus() {
+		return _context.getEventBus();
 	}
 	
 	// Lifecycle Methods ///////////////////////////////////////////////////////

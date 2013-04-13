@@ -28,8 +28,8 @@ public class PluginDelegateFactory {
 
 	}
 
-	public static PluginDelegate newDelegate(IDeviceManager deviceManager, EventBus eventBus) {
-		PluginContext context = new PluginContext(deviceManager, eventBus);
+	public static PluginDelegate newDelegate(String pluginName, IDeviceManager deviceManager, EventBus eventBus) {
+		PluginContext context = new PluginContext(pluginName, deviceManager, eventBus);
 		return new PluginDelegate(context);
 	}
 }

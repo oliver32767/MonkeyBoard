@@ -24,10 +24,12 @@ import net.brtly.monkeyboard.api.plugin.IPluginContext;
 
 public class PluginContext implements IPluginContext {
 
+	private final String _pluginName;
 	private final IDeviceManager _deviceManager;
 	private final EventBus _eventBus;
 	
-	public PluginContext(IDeviceManager deviceManager, EventBus eventBus) {
+	public PluginContext(String pluginName, IDeviceManager deviceManager, EventBus eventBus) {
+		_pluginName = pluginName;
 		_deviceManager = deviceManager;
 		_eventBus = eventBus;
 	}
@@ -40,6 +42,11 @@ public class PluginContext implements IPluginContext {
 	@Override
 	public EventBus getEventBus() {
 		return _eventBus;
+	}
+
+	@Override
+	public String getPluginName() {
+		return _pluginName;
 	}
 
 }

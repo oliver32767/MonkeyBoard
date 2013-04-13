@@ -22,6 +22,7 @@ import net.brtly.monkeyboard.api.IDeviceManager;
 import com.google.common.eventbus.EventBus;
 
 public interface IPluginContext {
+	public String getPluginName();
 	public IDeviceManager getDeviceManager();
 	public EventBus getEventBus();
 }
