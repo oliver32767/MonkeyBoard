@@ -1,0 +1,14 @@
+<ivysettings>
+	<settings defaultResolver="chain" />
+	<resolvers>
+		<chain name="chain">
+			<ibiblio name="bintray" m2compatible="true"
+				root="http://dl.bintray.com/content/oliver32767" />
+			<ibiblio name="central" m2compatible="true" />
+			<url name="github">
+				<artifact
+					pattern="https://github.com/oliver32767/build-dep/raw/master/[artifact]/[artifact]-[revision].[ext]" />
+			</url>
+		</chain>
+	</resolvers>
+</ivysettings>
