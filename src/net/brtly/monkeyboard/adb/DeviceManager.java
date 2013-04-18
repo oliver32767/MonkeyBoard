@@ -69,11 +69,11 @@ public final class DeviceManager implements IDeviceManager,
 
 	private static final Log LOG = LogFactory.getLog(DeviceManager.class);
 
-	private static final DeviceManager INSTANCE = new DeviceManager();
+	private static DeviceManager INSTANCE;
 	private static boolean _isInit = false;
 
 	private DeviceManagerState _state;
-	private EventBus _eventBus;
+	private final EventBus _eventBus;
 	private DeviceThreadPool _deviceThreadPool;
 	private Map<String, DeviceState> _devices;
 	private Map<String, IChimpDevice> _chimpDevices;
@@ -84,8 +84,9 @@ public final class DeviceManager implements IDeviceManager,
 
 	ExecutorService _workerExecutor;
 
-	private DeviceManager() {
+	private DeviceManager(EventBus eventBus) {
 		LOG.trace("created DeviceManager");
+		_eventBus = eventBus;
 	}
 
 	/**
@@ -99,9 +100,9 @@ public final class DeviceManager implements IDeviceManager,
 			if (_isInit) {
 				throw new IllegalStateException("DeviceManager already inited!");
 			}
+			INSTANCE = new DeviceManager(eventBus);
 
 			LOG.debug("DeviceManager INIT");
-			INSTANCE._eventBus = eventBus;
 			INSTANCE._deviceThreadPool = new DeviceThreadPool();
 			INSTANCE._devices = new ConcurrentHashMap<String, DeviceState>();
 			INSTANCE._chimpDevices = new ConcurrentHashMap<String, IChimpDevice>();
