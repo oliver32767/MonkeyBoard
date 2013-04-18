@@ -9,13 +9,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.reflections.Reflections;
 
+import com.google.common.eventbus.EventBus;
+
 public class PluginManager {
 	private static final Log LOG = LogFactory.getLog(PluginManager.class);
 
+	private static PluginManager INSTANCE;
+	
 	public PluginManager() {
 		LOG.debug("PluginManager initialized");
 	}
 
+	public static void init(EventBus eventBus) {
+		
+	}
+	
 	public void loadPlugins() {
 		Reflections ref = new Reflections("net.brtly.monkeyboard.plugin");
 
@@ -24,8 +32,13 @@ public class PluginManager {
 		// a delegate, unless the Plugin hasn't specified a delegate, at which
 		// point
 		// a default implementation will be instatiated for that specific
-		// plugin. The default PluginDelegate is NOT a shared delegate, !
+		// plugin. The default PluginDelegate is NOT a shared delegate, a new
+		// instance will be created for each plugin that does not specify a
+		// delegate!
 
+		// get list of Delegate subclasses, add the class objects to a set
+		
+		// Load classes annotated with View
 		Set<Class<?>> anno = ref.getTypesAnnotatedWith(View.class);
 
 		for (Class<?> c : anno) {
