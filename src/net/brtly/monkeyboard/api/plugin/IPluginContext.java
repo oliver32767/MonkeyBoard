@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
+
 package net.brtly.monkeyboard.api.plugin;
 
 import net.brtly.monkeyboard.api.IDeviceManager;
@@ -22,7 +23,9 @@ import net.brtly.monkeyboard.api.IDeviceManager;
 import com.google.common.eventbus.EventBus;
 
 public interface IPluginContext {
-	public String getPluginName();
+
 	public IDeviceManager getDeviceManager();
+	public IPluginManager getPluginManager();
 	public EventBus getEventBus();
+	
 }

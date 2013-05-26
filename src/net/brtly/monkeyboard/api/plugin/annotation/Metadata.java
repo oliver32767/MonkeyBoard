@@ -22,18 +22,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.brtly.monkeyboard.api.plugin.PluginDelegate;
-
 /**
- * Mark a class with information about a MenuProvider's top level entry.
- * 
+ * Annotation that describes a PluginView subclass' entry in the
+ * main View menu of ControllerFrame
  * @author obartley
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Menu {
-	public Class<? extends PluginDelegate> delegate() default PluginDelegate.class;
+public @interface Metadata {
 	public String title();
 	public String icon() default "";
 }

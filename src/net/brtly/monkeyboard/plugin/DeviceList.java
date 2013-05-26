@@ -37,9 +37,10 @@ import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
 import net.brtly.monkeyboard.api.event.DeviceEvent;
 import net.brtly.monkeyboard.api.event.DeviceStateChangedEvent;
+import net.brtly.monkeyboard.api.plugin.Bundle;
 import net.brtly.monkeyboard.api.plugin.PluginDelegate;
-import net.brtly.monkeyboard.api.plugin.PluginView;
-import net.brtly.monkeyboard.api.plugin.annotation.View;
+import net.brtly.monkeyboard.api.plugin.annotation.Metadata;
+import net.brtly.monkeyboard.api.plugin.panel.PluginPanel;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.logging.Log;
@@ -47,10 +48,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.eventbus.Subscribe;
 
-@View(title = "Device List", icon = "res/img/device.png")
-public class DeviceList extends PluginView {
+@Metadata(title = "Device List", icon = "img/device.png")
+public class DeviceList extends PluginPanel {
 
 	private class SortedArrayList<T> extends ArrayList<T> {
+		private static final long serialVersionUID = 3999063077460496789L;
 
 		@SuppressWarnings("unchecked")
 		public void insertSorted(T value) {
@@ -62,6 +64,7 @@ public class DeviceList extends PluginView {
 	}
 
 	private class DeviceListModel extends AbstractTableModel {
+		private static final long serialVersionUID = -814762679846297752L;
 
 		private String[] _columns = { "", "Serial Number", "OS", "Name" };
 
@@ -73,8 +76,8 @@ public class DeviceList extends PluginView {
 			_devices = new SortedArrayList<String>();
 			_names = new HashMap<String, String>();
 			_versions = new HashMap<String, String>();
-			if (getDelegate().getDeviceManager() != null) {
-				Set<String> dev = getDelegate().getDeviceManager()
+			if (getDelegate().getContext().getDeviceManager() != null) {
+				Set<String> dev = getDelegate().getContext().getDeviceManager()
 						.getDeviceSerialNumbers();
 				for (String s : dev) {
 					_devices.insertSorted(s);
@@ -95,7 +98,7 @@ public class DeviceList extends PluginView {
 		}
 
 		public void fetchDeviceInfo(final String serial) {
-			if (getDelegate().getDeviceManager() == null) {
+			if (getDelegate().getContext().getDeviceManager() == null) {
 				return;
 			}
 
@@ -130,7 +133,7 @@ public class DeviceList extends PluginView {
 					fireTableDataChanged();
 				}
 			};
-			getDelegate().getDeviceManager().submitTask(serial, task);
+			getDelegate().getContext().getDeviceManager().submitTask(serial, task);
 		}
 
 		@Subscribe
@@ -161,6 +164,8 @@ public class DeviceList extends PluginView {
 				break;
 			case DEVICE_FOCUSED:
 				selectFocusedDevice(event.getSerialNumber());
+				break;
+			default:
 				break;
 			}
 			EventQueue.invokeLater(new Runnable() {
@@ -203,7 +208,7 @@ public class DeviceList extends PluginView {
 
 		@Override
 		public int getRowCount() {
-			return getDelegate().getDeviceManager().getDeviceSerialNumbers()
+			return getDelegate().getContext().getDeviceManager().getDeviceSerialNumbers()
 					.size();
 		}
 
@@ -215,7 +220,7 @@ public class DeviceList extends PluginView {
 				case 0: // Status
 					return new ImageIcon(String.format(
 							"res/img/android-%s.png",
-							getDelegate().getDeviceManager()
+							getDelegate().getContext().getDeviceManager()
 									.getDeviceState(_devices.get(row))
 									.toString().toLowerCase()));
 				case 1: // Serial
@@ -247,14 +252,17 @@ public class DeviceList extends PluginView {
 		}
 
 	}
+	
+	private static final long serialVersionUID = 3793541440035046980L;
+
 
 	private static final Log LOG = LogFactory.getLog(DeviceList.class);
 
 	private JTable _table;
 	private DeviceListModel _model;
 
-	public DeviceList(PluginDelegate delegate) {
-		super(delegate);
+	public DeviceList(PluginDelegate service) {
+		super(service);
 		setLayout(new MigLayout("inset 5", "[grow]", "[grow]"));
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -279,6 +287,12 @@ public class DeviceList extends PluginView {
 		_table.getColumnModel().getColumn(2).setPreferredWidth(48);
 		_table.getColumnModel().getColumn(2).setMaxWidth(96);
 		
-		getDelegate().getEventBus().register(_model);
+		getDelegate().getContext().getEventBus().register(_model);
+	}
+
+	@Override
+	public Bundle savePluginState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

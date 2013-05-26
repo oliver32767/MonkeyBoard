@@ -96,33 +96,31 @@ public final class DeviceManager implements IDeviceManager,
 	 * @param eventBus
 	 */
 	public static void init(EventBus eventBus) {
-		synchronized (INSTANCE) {
-			if (_isInit) {
-				throw new IllegalStateException("DeviceManager already inited!");
-			}
-			INSTANCE = new DeviceManager(eventBus);
-
-			LOG.debug("DeviceManager INIT");
-			INSTANCE._deviceThreadPool = new DeviceThreadPool();
-			INSTANCE._devices = new ConcurrentHashMap<String, DeviceState>();
-			INSTANCE._chimpDevices = new ConcurrentHashMap<String, IChimpDevice>();
-			INSTANCE._focusedDevice = null;
-
-			// This mess makes a single threaded executor capable of executing
-			// INSTANCE._workerExecutor =
-			// MoreExecutors.listeningDecorator(Executors
-			// .newSingleThreadExecutor(new ThreadFactoryBuilder()
-			// .setNameFormat("DeviceManager-Worker-%d").build()));
-			
-			INSTANCE._workerExecutor = Executors
-					.newSingleThreadExecutor(new ThreadFactoryBuilder()
-							.setNameFormat("DeviceManager").build());
-//			INSTANCE._workerExecutor = Executors
-//					.newCachedThreadPool(new ThreadFactoryBuilder()
-//							.setNameFormat("DeviceManager-worker-%d").build());
-			INSTANCE._state = DeviceManagerState.STOPPED;
-			_isInit = true;
+		if (_isInit) {
+			throw new IllegalStateException("DeviceManager already inited!");
 		}
+		INSTANCE = new DeviceManager(eventBus);
+
+		LOG.debug("DeviceManager INIT");
+		INSTANCE._deviceThreadPool = new DeviceThreadPool();
+		INSTANCE._devices = new ConcurrentHashMap<String, DeviceState>();
+		INSTANCE._chimpDevices = new ConcurrentHashMap<String, IChimpDevice>();
+		INSTANCE._focusedDevice = null;
+
+		// This mess makes a single threaded executor capable of executing
+		// INSTANCE._workerExecutor =
+		// MoreExecutors.listeningDecorator(Executors
+		// .newSingleThreadExecutor(new ThreadFactoryBuilder()
+		// .setNameFormat("DeviceManager-Worker-%d").build()));
+
+		INSTANCE._workerExecutor = Executors
+				.newSingleThreadExecutor(new ThreadFactoryBuilder()
+						.setNameFormat("DeviceManager").build());
+		// INSTANCE._workerExecutor = Executors
+		// .newCachedThreadPool(new ThreadFactoryBuilder()
+		// .setNameFormat("DeviceManager-worker-%d").build());
+		INSTANCE._state = DeviceManagerState.STOPPED;
+		_isInit = true;
 	}
 
 	/**
@@ -265,7 +263,8 @@ public final class DeviceManager implements IDeviceManager,
 			_eventBus.post(new DeviceStateChangedEvent(
 					device.getSerialNumber(), IDeviceController.DeviceState
 							.fromIDeviceState(device.getState())));
-			_eventBus.post(new DeviceListChangedEvent(getDeviceSerialNumbers()));
+			_eventBus
+					.post(new DeviceListChangedEvent(getDeviceSerialNumbers()));
 		}
 	}
 
@@ -293,7 +292,8 @@ public final class DeviceManager implements IDeviceManager,
 			}
 			_devices.remove(serial);
 			_eventBus.post(new DeviceDisconnectedEvent(serial));
-			_eventBus.post(new DeviceListChangedEvent(getDeviceSerialNumbers()));
+			_eventBus
+					.post(new DeviceListChangedEvent(getDeviceSerialNumbers()));
 		}
 	}
 
@@ -315,22 +315,25 @@ public final class DeviceManager implements IDeviceManager,
 	 * @param device
 	 */
 	private void addChimpDevice(final IDevice device) {
-		
-		final Future<Void> future = _workerExecutor.submit(new Callable<Void>() {
-			@Override
-			public Void call() {
-				LOG.trace("Creating IChimpDevice for " + device.getSerialNumber());
-				IChimpDevice chimp = new AdbChimpDevice(device);
-				synchronized (_devices) {
-					_chimpDevices.put(device.getSerialNumber(), chimp);
-					_devices.put(device.getSerialNumber(), DeviceState.MONKEY);
-				}
-				_eventBus.post(new DeviceStateChangedEvent(device
-						.getSerialNumber(), DeviceState.MONKEY));				
-				return null;
-			}
-		});
-		
+
+		final Future<Void> future = _workerExecutor
+				.submit(new Callable<Void>() {
+					@Override
+					public Void call() {
+						LOG.trace("Creating IChimpDevice for "
+								+ device.getSerialNumber());
+						IChimpDevice chimp = new AdbChimpDevice(device);
+						synchronized (_devices) {
+							_chimpDevices.put(device.getSerialNumber(), chimp);
+							_devices.put(device.getSerialNumber(),
+									DeviceState.MONKEY);
+						}
+						_eventBus.post(new DeviceStateChangedEvent(device
+								.getSerialNumber(), DeviceState.MONKEY));
+						return null;
+					}
+				});
+
 		Thread timeout = new Thread() {
 			@Override
 			public void run() {

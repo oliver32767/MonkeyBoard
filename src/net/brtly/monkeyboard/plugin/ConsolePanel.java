@@ -32,9 +32,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 
+import net.brtly.monkeyboard.api.plugin.Bundle;
 import net.brtly.monkeyboard.api.plugin.PluginDelegate;
-import net.brtly.monkeyboard.api.plugin.PluginView;
-import net.brtly.monkeyboard.api.plugin.annotation.View;
+import net.brtly.monkeyboard.api.plugin.annotation.Metadata;
+import net.brtly.monkeyboard.api.plugin.panel.PluginPanel;
 import net.brtly.monkeyboard.gui.widget.JLogTable;
 import net.miginfocom.swing.MigLayout;
 
@@ -45,8 +46,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
-@View(title = "Console", icon = "res/img/console.png")
-public class ConsolePanel extends PluginView {
+@Metadata(title = "Console", icon = "img/console.png")
+public class ConsolePanel extends PluginPanel {
 
 	private class JLogTableAppender extends WriterAppender {
 		@Override
@@ -60,6 +61,8 @@ public class ConsolePanel extends PluginView {
 		}
 	}
 
+	private static final long serialVersionUID = -3380590876144265451L;
+
 	private static final Log LOG = LogFactory.getLog(ConsolePanel.class);
 
 	private JToggleButton tglbtnV;
@@ -67,8 +70,8 @@ public class ConsolePanel extends PluginView {
 	private JLogTable _table;
 	private JLogTableAppender _appender;
 
-	public ConsolePanel(PluginDelegate delegate) {
-		super(delegate);
+	public ConsolePanel(PluginDelegate service) {
+		super(service);
 		setLayout(new MigLayout("inset 5",
 				"[grow][:100:100][24:n:24][24:n:24]", "[::24][grow]"));
 
@@ -148,5 +151,11 @@ public class ConsolePanel extends PluginView {
 		LOG.info("Pójdźże, kiń tę chmurność w głąb flaszy!");
 		LOG.debug("Quick hijinx swiftly revamped gazebo");
 		LOG.trace("The quick brown fox jumps over the lazy dog");
+	}
+
+	@Override
+	public Bundle savePluginState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

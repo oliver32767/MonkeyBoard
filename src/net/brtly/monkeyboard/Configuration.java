@@ -27,11 +27,11 @@ import org.apache.log4j.Level;
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 
-public class UserPreferences {
-	private static final Log LOG = LogFactory.getLog(UserPreferences.class);
+public class Configuration {
+	private static final Log LOG = LogFactory.getLog(Configuration.class);
 	private Ini _ini;
 
-	protected UserPreferences() {
+	protected Configuration() {
 		if (!getPreferencesFile().exists()) {
 			createDefaultPreferencesFile();
 		}

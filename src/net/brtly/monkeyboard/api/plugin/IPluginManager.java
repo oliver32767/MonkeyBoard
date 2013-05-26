@@ -15,25 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.brtly.monkeyboard.api.plugin.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package net.brtly.monkeyboard.api.plugin;
 
-import net.brtly.monkeyboard.api.plugin.PluginDelegate;
 
-/**
- * Annotation that describes a PluginView subclass' entry in the
- * main View menu of ControllerFrame
- * @author obartley
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface View {
-	public Class<? extends PluginDelegate> delegate() default PluginDelegate.class;
-	public String title();
-	public String icon() default "";
-	public boolean allowDuplicates() default true;
+public interface IPluginManager {
+	/**
+	 * 
+	 * @param delegate
+	 * @param provider
+	 */
+	public void register(PluginDelegate delegate, IPluginProvider<?> provider);
+	public void unregister(IPluginProvider<?> provider);
+		
+	public void unregister(PluginDelegate delegate);
 }

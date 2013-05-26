@@ -20,4 +20,5 @@ package net.brtly.monkeyboard.api.plugin;
 
 public interface IPlugin {
 	public PluginDelegate getDelegate();
+	public Bundle savePluginState();
 }

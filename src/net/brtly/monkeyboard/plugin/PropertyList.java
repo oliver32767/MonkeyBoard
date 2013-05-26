@@ -29,9 +29,10 @@ import net.brtly.monkeyboard.api.DeviceTask;
 import net.brtly.monkeyboard.api.IDeviceController;
 import net.brtly.monkeyboard.api.event.DeviceFocusedEvent;
 import net.brtly.monkeyboard.api.event.DeviceUnfocusedEvent;
+import net.brtly.monkeyboard.api.plugin.Bundle;
 import net.brtly.monkeyboard.api.plugin.PluginDelegate;
-import net.brtly.monkeyboard.api.plugin.PluginView;
-import net.brtly.monkeyboard.api.plugin.annotation.View;
+import net.brtly.monkeyboard.api.plugin.annotation.Metadata;
+import net.brtly.monkeyboard.api.plugin.panel.PluginPanel;
 import net.brtly.monkeyboard.gui.widget.JHintTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -51,8 +52,8 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import com.google.common.eventbus.Subscribe;
 
-@View(title = "Property List", icon = "res/img/properties.png")
-public class PropertyList extends PluginView {
+@Metadata(title = "Property List", icon = "img/properties.png")
+public class PropertyList extends PluginPanel {
 
 	private static final long serialVersionUID = 3666981395231189022L;
 
@@ -117,8 +118,8 @@ public class PropertyList extends PluginView {
 	private EventList<Property> propertyList = new BasicEventList<Property>();
 	private List<String> propertyEditorHistory = new ArrayList<String>();
 
-	public PropertyList(PluginDelegate delegate) {
-		super(delegate);
+	public PropertyList(PluginDelegate service) {
+		super(service);
 		setLayout(new MigLayout("inset 5", "[grow][24:n:24][24:n:24]",
 				"[][grow]"));
 
@@ -147,7 +148,7 @@ public class PropertyList extends PluginView {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				fetchDeviceProperties(getDelegate().getDeviceManager().getFocusedDevice());
+				fetchDeviceProperties(getDelegate().getContext().getDeviceManager().getFocusedDevice());
 			}
 
 		});
@@ -161,7 +162,7 @@ public class PropertyList extends PluginView {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String serial = getDelegate().getDeviceManager().getFocusedDevice();
+				String serial = getDelegate().getContext().getDeviceManager().getFocusedDevice();
 				if (serial == null) {
 					JOptionPane.showMessageDialog(PropertyList.this,
 							"No device selected!", null,
@@ -194,13 +195,13 @@ public class PropertyList extends PluginView {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					String serial = getDelegate().getDeviceManager().getFocusedDevice();
+					String serial = getDelegate().getContext().getDeviceManager().getFocusedDevice();
 					if (serial == null) {
 						return;
 					}
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
-					int column = target.getSelectedColumn();
+//					int column = target.getSelectedColumn();
 					String defaultValue = target.getValueAt(row, 0) + " "
 							+ target.getValueAt(row, 1);
 					showPropertyEditor(serial, defaultValue);
@@ -208,20 +209,20 @@ public class PropertyList extends PluginView {
 			}
 		});
 		scrollPane.setViewportView(table);
-		getDelegate().getEventBus().register(this);
+		getDelegate().getContext().getEventBus().register(this);
 	}
 	
 
 	@Subscribe
 	public void onDeviceFocusedEvent(DeviceFocusedEvent event) {
-		setTitle("Property List [" + event.getSerialNumber() + "]");
+		getFrame().setTitle("Property List [" + event.getSerialNumber() + "]");
 		fetchDeviceProperties(event.getSerialNumber());
 	}
 
 	@Subscribe
 	public void onDeviceUnfocusedEvent(DeviceUnfocusedEvent event) {
 		if (event.getFocusedDevice() == null) {
-			setTitle("Property List");
+			getFrame().setTitle("Property List");
 			updateData(null);
 		}
 	}
@@ -232,7 +233,7 @@ public class PropertyList extends PluginView {
 			updateData(null);
 			return;
 		}
-
+		LOG.trace("Fetching device properties for " + serial);
 		DeviceTask<Void, String> task = new DeviceTask<Void, String>() {
 			@Override
 			public String run(IDeviceController device) throws Exception {
@@ -251,7 +252,7 @@ public class PropertyList extends PluginView {
 				updateData(properties);
 			}
 		};
-		getDelegate().getDeviceManager().submitTask(serial, task);
+		getDelegate().getContext().getDeviceManager().submitTask(serial, task);
 	}
 
 	private void updateData(Map<String, String> properties) {
@@ -340,6 +341,13 @@ public class PropertyList extends PluginView {
 			}
 
 		};
-		getDelegate().getDeviceManager().submitTask(serial, task);
+		getDelegate().getContext().getDeviceManager().submitTask(serial, task);
+	}
+
+
+	@Override
+	public Bundle savePluginState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

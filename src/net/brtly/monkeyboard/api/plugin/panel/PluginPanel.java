@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package net.brtly.monkeyboard.api.plugin;
+package net.brtly.monkeyboard.api.plugin.panel;
 
 import java.awt.Component;
 
@@ -23,67 +23,47 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import net.brtly.monkeyboard.api.plugin.annotation.View;
-import net.brtly.monkeyboard.plugin.core.PluginDockable;
+import net.brtly.monkeyboard.api.plugin.IPlugin;
+import net.brtly.monkeyboard.api.plugin.PluginDelegate;
+import net.brtly.monkeyboard.api.plugin.annotation.Metadata;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 @SuppressWarnings("serial")
-public abstract class PluginView extends JPanel implements IPlugin {
-
-	private final PluginDelegate _delegate;
+public abstract class PluginPanel extends JPanel implements IPlugin {
+	
+	private final PluginDelegate _service;
 	
 	private JPanel _rootView;
-	private PluginDockable _dockable;
-	private String _title;
-	private Icon _icon;
-	private final boolean _allowDuplicates;
+	private final PluginFrame _frame;
 
-	public PluginView(PluginDelegate delegate) {
-		_delegate = delegate;
-
-		View anno = getClass().getAnnotation(View.class);
+	public PluginPanel(PluginDelegate service) {
+		_service = service;
+		
+		String title = null;
+		Icon icon = null;
+		Metadata anno = getClass().getAnnotation(Metadata.class);
 		if (anno != null) {
-			_title = anno.title();
+			title = anno.title();
 			try {
-				_icon = new ImageIcon(anno.icon());
+				icon = new ImageIcon(anno.icon());
 			} catch (Exception e) {
-				_icon = null;
+				icon = null;
 			}
-			_allowDuplicates = anno.allowDuplicates();
-		} else {
-			_title = this.toString();
-			_icon = null;
-			_allowDuplicates = true;
 		}
+		_frame = new PluginFrame(title, icon);
 	}
 	
-	public PluginDelegate getDelegate() {
-		return _delegate;
-	}
-
-	public void setTitle(String title) {
-		_title = title;
+	@Override
+	public final PluginDelegate getDelegate() {
+		return _service;
 	}
 	
-	public String getTitle() {
-		return _title;
+	public final PluginFrame getFrame() {
+		return _frame;
 	}
 	
-	public void setIcon(Icon icon) {
-		_icon = icon;
-	}
-	
-	public Icon getIcon() {
-		return _icon;
-	}
-
-	public final void attach(PluginDockable dockable) {
-		_dockable = dockable;
-		_dockable.setTitleText(getTitle());
-		_dockable.setTitleIcon(getIcon());
-		_dockable.add(this);
-	}
-	
-
 	public final Component findComponentWithName(String name) {
 		for (Component c : _rootView.getComponents()) {
 			if (c.getName().equals(name)) {

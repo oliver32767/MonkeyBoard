@@ -15,15 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with MonkeyBoard.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
+
 package net.brtly.monkeyboard.api.plugin;
 
-import net.brtly.monkeyboard.api.IDeviceManager;
 
-import org.ini4j.Ini;
 
-import com.google.common.eventbus.EventBus;
-
-public class PluginDelegate {
+public abstract class PluginDelegate {
 	
 	private final IPluginContext _context;
 	
@@ -31,33 +28,24 @@ public class PluginDelegate {
 		_context = context;
 	}
 	
-	public final String getPluginName() {
-		return _context.getPluginName();
+	public IPluginContext getContext() {
+		return _context;
 	}
 	
-	public final IDeviceManager getDeviceManager() {
-		return _context.getDeviceManager();
+	public String getID() {
+		return this.getClass().getName();
 	}
 	
-	public final EventBus getEventBus() {
-		return _context.getEventBus();
-	}
+	public abstract void onLoad(Bundle properties);
 	
-	// Lifecycle Methods ///////////////////////////////////////////////////////
-	
-	public void onPluginLoaded() {
+	public void onEnable() {
 		
 	}
 	
-	public void onRestorePluginState(Ini preferences) {
+	public void onDisable() {
 		
 	}
+	
+	public abstract Bundle onUnload();
 
-	public Ini onSavePluginState() {
-		return null;
-	}
-	
-	public void onPluginUnloaded() {
-		
-	}
 }

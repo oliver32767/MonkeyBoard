@@ -20,94 +20,121 @@ package net.brtly.monkeyboard.gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import net.brtly.monkeyboard.adb.DeviceManager;
-import net.brtly.monkeyboard.api.plugin.PluginDelegate;
-import net.brtly.monkeyboard.api.plugin.PluginView;
 import net.brtly.monkeyboard.gui.widget.StatusBar;
-import net.brtly.monkeyboard.plugin.ConsolePanel;
-import net.brtly.monkeyboard.plugin.DeviceList;
-import net.brtly.monkeyboard.plugin.PropertyList;
-import net.brtly.monkeyboard.plugin.core.PluginDelegateFactory;
-import net.brtly.monkeyboard.plugin.core.PluginDockable;
+import net.brtly.monkeyboard.plugin.CorePluginDelegate;
+import net.brtly.monkeyboard.plugin.core.DelegateFilter;
+import net.brtly.monkeyboard.plugin.core.PluginLoader;
 import net.brtly.monkeyboard.plugin.core.PluginManager;
+import net.brtly.monkeyboard.plugin.core.panel.PluginDockableLayout;
+import net.brtly.monkeyboard.plugin.core.panel.PluginPanelDockable;
+import net.brtly.monkeyboard.plugin.core.panel.PluginPanelDockableFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import bibliothek.gui.DockController;
-import bibliothek.gui.DockFrontend;
-import bibliothek.gui.dock.SplitDockStation;
 import bibliothek.gui.dock.common.CControl;
-import bibliothek.gui.dock.station.split.SplitDockProperty;
 
 import com.google.common.eventbus.EventBus;
 
-public class MasterControlPanel extends JFrame {
+public class MasterControlPanel extends JPanel {
 	private static final long serialVersionUID = -9025534330767761624L;
 	private static final Log LOG = LogFactory.getLog(MasterControlPanel.class);
 	private List<Runnable> _runOnClose = new ArrayList<Runnable>();
 
-	private DockController _controller;
-	private SplitDockStation _station;
-	private EventBus _eventBus;
-	private PluginManager _pluginManager;
+	private final EventBus _eventBus;
+	private final PluginManager _pluginManager;
+	private final JFrame _frame;
 
-	JButton btnAdb;
+	private final JMenu _viewMenu;
+	private final CControl _dockController;
+	private final PluginPanelDockableFactory _panelFactory;
+
 	StatusBar statusPanel;
 
-	public MasterControlPanel() {
-		setBounds(120, 80, 600, 400);
-		setTitle("Monkey Board");
-		initWindowListener();
-		_eventBus = new SwingEventBus();
-
-		_controller = new DockController();
-		_controller.setRootWindow(this);
-
-		_station = new SplitDockStation();
-		_controller.add(_station);
-		getContentPane().add(_station);
-		
-		destroyOnClose(_controller);
+	public MasterControlPanel(JFrame frame) {
+		_frame = frame;
+		initWindowListener(frame);
 
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		frame.setJMenuBar(menuBar);
 
 		JMenu mnActions = new JMenu("Actions");
 		menuBar.add(mnActions);
 
+		JMenu mnDebug = new JMenu("Debug");
+		mnActions.add(mnDebug);
+
+		JMenuItem mntmAddPluginpanel = new JMenuItem("Request null PluginPanel");
+		mntmAddPluginpanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				System.out.println("Requesting null PluginPanel");
+				// TODO
+			}
+		});
+		mnDebug.add(mntmAddPluginpanel);
+
 		JMenu mnOptions = new JMenu("Options");
 		menuBar.add(mnOptions);
 
-		JMenu mnViews = new JMenu("Views");
-		menuBar.add(mnViews);
+		_viewMenu = new JMenu("Views");
 
-		// create the status bar panel and shove it down the bottom of the frame
-		statusPanel = new StatusBar(this);
-		this.add(statusPanel, BorderLayout.SOUTH);
+		_viewMenu.addMenuListener(new MenuListener() {
 
+			@Override
+			public void menuCanceled(MenuEvent arg0) {}
+
+			@Override
+			public void menuDeselected(MenuEvent arg0) {}
+
+			@Override
+			public void menuSelected(MenuEvent arg0) {
+				updateViewMenu();
+			}
+			
+		});
+		menuBar.add(_viewMenu);
+
+		// INITIALIZE MANAGERS
+		// TODO: maybe call this in the Runnable and fire an event when finished
+		_eventBus = new SwingEventBus();
+		_eventBus.register(this);
 		DeviceManager.init(_eventBus);
-
-		createDefaultLayout();
-
-		_pluginManager = new PluginManager();
+		
+		_pluginManager = new PluginManager(_eventBus);
 		_pluginManager.loadPlugins();
 
-		
-		_eventBus.register(this);
+		// create the status bar panel and shove it down the bottom of the frame
+		statusPanel = new StatusBar(frame);
+		_frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
+		_dockController = new CControl(frame);
+		_frame.getContentPane().add(_dockController.getContentArea(),
+				BorderLayout.CENTER);
+		_panelFactory = new PluginPanelDockableFactory(_pluginManager);
+		_dockController
+				.addMultipleDockableFactory(PluginPanelDockableFactory.ID,
+						_panelFactory);
+		_dockController.createWorkingArea("root");
+		
+		updateViewMenu();
+		
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -115,8 +142,9 @@ public class MasterControlPanel extends JFrame {
 			}
 		});
 
-		runOnClose(new Runnable() {
+		_runOnClose.add(new Runnable() {
 			public void run() {
+				_dockController.destroy();
 				DeviceManager.stop();
 				DeviceManager.shutdown();
 				System.exit(0);
@@ -124,46 +152,37 @@ public class MasterControlPanel extends JFrame {
 		});
 	}
 
-	private void createDefaultLayout() {
-		addView(DeviceList.class);
-		addView(PropertyList.class, SplitDockProperty.EAST);
-		addView(ConsolePanel.class, SplitDockProperty.SOUTH);
+	private void updateViewMenu() {
+		_viewMenu.removeAll();
+		Set<String> plugins = _pluginManager.getPluginIDs(new DelegateFilter(CorePluginDelegate.class.getName()));
+		
+		for (String s : plugins) {
+			PluginLoader loader = _pluginManager.getPluginLoader(s);
+			ViewMenuAction a = new ViewMenuAction(loader) {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					loadPlugin(this.getLoader());
+				}
+			};
+			a.setEnabled(loader.shouldLoadPlugin(_panelFactory.getInstanceCount(loader.getPluginId())));
+			_viewMenu.add(a);
+		}
 	}
 	
-	private void addView(Class<? extends PluginView> c) {
-		addView(c, null);
-	}
-	private void addView(Class<? extends PluginView> c, SplitDockProperty property) {
-		PluginView panel;
-		try {
-			Class<?> cls[] = new Class[] {PluginDelegate.class};
-			Constructor<? extends PluginView> init = c.getConstructor(cls);
-			panel = init.newInstance(PluginDelegateFactory.newDelegate(c.getName(), DeviceManager.getDeviceManager(), _eventBus));
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-			return;
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			return;
-		} catch (SecurityException e) {
-			e.printStackTrace();
-			return;
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-			return;
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			return;
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			return;
+	private void loadPlugin(PluginLoader loader) {
+		LOG.debug("loading:" + loader.getTitle());
+		PluginDockableLayout layout = new PluginDockableLayout(loader.getPluginId(), null);
+		PluginPanelDockable dockable = _panelFactory.read(layout);
+		if (dockable != null) {
+			_dockController.addDockable(dockable);
+			dockable.setVisible(true);
+			LOG.debug("done");
+		} else {
+			LOG.warn("Can't load duplicates");
 		}
-		PluginDockable dockable = new PluginDockable();
-		panel.attach(dockable);
-		dockable.add(panel);
-		_station.drop(dockable, property);
+		
 	}
-
+	
 	private static String createAndShowSdkChooser() {
 		String sdk;
 		System.setProperty("apple.awt.fileDialogForDirectories", "true");
@@ -174,15 +193,15 @@ public class MasterControlPanel extends JFrame {
 		return sdk;
 	}
 
-	private void initWindowListener() {
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
+	private void initWindowListener(final JFrame frame) {
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter() {
 			public void windowOpened(WindowEvent e) {
 
 			}
 
 			public void windowClosing(WindowEvent e) {
-				dispose();
+				frame.dispose();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -193,105 +212,4 @@ public class MasterControlPanel extends JFrame {
 		});
 	}
 
-	// private void startAdb() {
-	// Thread t = new Thread(new Runnable() {
-	// public void run() {
-	// try {
-	// LOG.debug("Starting DeviceManager");
-	// DeviceManager
-	// .start("/Users/obartley/Library/android-sdk-macosx/platform-tools/adb");
-	// } catch (SocketException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IllegalStateException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// t.setName("DeviceManager");
-	// t.start();
-	// }
-
-//	@Subscribe
-//	public void onDeviceManagerStateChangedEvent(
-//			DeviceManagerStateChangedEvent event) {
-//		Icon icon = null;
-//		switch (event.getState()) {
-//		case STARTING:
-//			icon = new ImageIcon(
-//					MasterControlPanel.class.getResource("/img/starting.png"));
-//			break;
-//		case RUNNING:
-//			icon = new ImageIcon(
-//					MasterControlPanel.class.getResource("/img/stop.png"));
-//			break;
-//		case STOPPING:
-//			icon = new ImageIcon(
-//					MasterControlPanel.class.getResource("/img/starting.png"));
-//			break;
-//		case STOPPED:
-//			icon = new ImageIcon(
-//					MasterControlPanel.class.getResource("/img/start.png"));
-//			break;
-//		case FAILED:
-//			icon = new ImageIcon(
-//					MasterControlPanel.class.getResource("/img/start.png"));
-//			break;
-//		}
-//		btnAdb.setIcon(icon);
-//	}
-
-	// ////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Add an instance of Runnable to be run when this window closes
-	 * 
-	 * @param run
-	 */
-	public void runOnClose(Runnable run) {
-		_runOnClose.add(run);
-	}
-
-	/**
-	 * Add an instance of CControl to have #destroy() call on when this window
-	 * closes
-	 * 
-	 * @param control
-	 */
-	public void destroyOnClose(final CControl control) {
-		runOnClose(new Runnable() {
-			public void run() {
-				control.destroy();
-			}
-		});
-	}
-
-	/**
-	 * Add an instance of DockController to have #kill() called on when this
-	 * window closes
-	 * 
-	 * @param controller
-	 */
-	public void destroyOnClose(final DockController controller) {
-		runOnClose(new Runnable() {
-			public void run() {
-				controller.kill();
-			}
-		});
-	}
-
-	/**
-	 * Add an instance of DockFrontend to have #kill() on when this window
-	 * closes
-	 * 
-	 * @param frontend
-	 */
-	public void destroyOnClose(final DockFrontend frontend) {
-		runOnClose(new Runnable() {
-			public void run() {
-				frontend.kill();
-			}
-		});
-	}
 }

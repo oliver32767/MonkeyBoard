@@ -34,12 +34,12 @@
 			<artifact name="log4j" type="pom" ext="pom" conf=""/>
 		</dependency>
 		<dependency org="commons-logging" name="commons-logging" rev="1.1.1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
-		<dependency org="log4j" name="log4j" rev="1.2.17" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
-		<dependency org="com.google.android.tools" name="ddmlib" rev="r13"/>
-		<dependency org="com.google.guava" name="guava" rev="12.0" />
-		<dependency org="net.java.dev.glazedlists" name="glazedlists_java15" rev="1.9.0" />
-		<dependency org="org.reflections" name="reflections" rev="0.9.9-RC1" />
 		
-		<dependency name="javadocking" rev="1.5.0" />
+		<dependency org="log4j" name="log4j" rev="1.2.17" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="com.google.android.tools" name="ddmlib" rev="r13" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="com.google.guava" name="guava" rev="12.0" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="net.java.dev.glazedlists" name="glazedlists_java15" rev="1.9.0" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="org.reflections" name="reflections" rev="0.9.9-RC1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		
 	</dependencies>
 </ivy-module>
