@@ -18,6 +18,7 @@
 package net.brtly.monkeyboard.api.plugin.panel;
 
 import java.awt.Component;
+import java.awt.Container;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -26,9 +27,6 @@ import javax.swing.JPanel;
 import net.brtly.monkeyboard.api.plugin.IPlugin;
 import net.brtly.monkeyboard.api.plugin.PluginDelegate;
 import net.brtly.monkeyboard.api.plugin.annotation.Metadata;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 @SuppressWarnings("serial")
 public abstract class PluginPanel extends JPanel implements IPlugin {
@@ -62,6 +60,14 @@ public abstract class PluginPanel extends JPanel implements IPlugin {
 	
 	public final PluginFrame getFrame() {
 		return _frame;
+	}
+	
+	/**
+	 * Overridden to always return null.
+	 */
+	@Override
+	public Container getParent() {
+		return null;
 	}
 	
 	public final Component findComponentWithName(String name) {
