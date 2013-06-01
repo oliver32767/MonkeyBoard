@@ -62,13 +62,13 @@ public abstract class PluginPanel extends JPanel implements IPlugin {
 		return _frame;
 	}
 	
-	/**
-	 * Overridden to always return null.
-	 */
-	@Override
-	public Container getParent() {
-		return null;
-	}
+//	/**
+//	 * Overridden to always return null.
+//	 */
+//	@Override
+//	public Container getParent() {
+//		return null;
+//	}
 	
 	public final Component findComponentWithName(String name) {
 		for (Component c : _rootView.getComponents()) {
